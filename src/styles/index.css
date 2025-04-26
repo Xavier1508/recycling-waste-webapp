@@ -1,0 +1,46 @@
+@import url("https://fonts.googleapis.com/css2?family=Satoshi:wght@400;500;600;700;800;900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "./custom.css";
+
+.sticky-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  background-color: rgba(0, 0, 0, 0.849);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 768px) {
+  .sticky-navbar .nav-desktop a {
+    color: white;
+  }
+}
+
+.nav-mobile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  list-style: none;
+  padding: 0;
+}
+
+.nav-mobile li {
+  margin-bottom: 10px;
+  font-family: "Poppins", sans-serif;
+}
+
+.nav-mobile a {
+  text-decoration: none;
+  font-size: 16px;
+  color: white;
+}
+
+.sticky-navbar .nav-mobile a {
+  color: black;
+}

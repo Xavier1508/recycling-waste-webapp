@@ -1,0 +1,223 @@
+#root {
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.bgGradient {
+  background: linear-gradient(90deg, #7c1215 0%, #d93d41 100%);
+}
+
+.bannerGradient {
+  background: linear-gradient(
+    95deg,
+    rgba(0, 0, 0, 0.75) -2.43%,
+    rgba(0, 0, 0, 0) 95.77%
+  );
+}
+
+.servicesBgFrame {
+  background-image: url(../assets/images/servicesBgFrame.png);
+}
+
+.teamBg {
+  background-image: url(../assets//images/teamBg.png);
+}
+
+* {
+  scroll-behavior: smooth;
+}
+
+button {
+  transition: 0.5s;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+.white__gradient {
+  background: rgba(255, 255, 255, 0.6);
+  filter: blur(750px);
+}
+
+.button {
+  border-radius: 500px;
+  background: linear-gradient(90deg, #7c1215 0%, #d93d41 100%);
+}
+
+.bg-nav-gradient {
+  background: linear-gradient(45deg, #d93d41 0%, #7c1215 100%);
+}
+
+.homepageBg {
+  background-image: url(../assets/images/homepageBannerBg.png);
+}
+
+.bgRedGradient {
+  background: linear-gradient(90deg, #7c1215 0%, #d93d41 100%);
+}
+
+.bgTestimonials {
+  background: #fffaec;
+}
+
+.bgTestimonials:hover {
+  background: linear-gradient(90deg, #d23a3e 0%, #831519 100%);
+}
+
+.text-black {
+  color: black;
+}
+
+.group:hover .text-black {
+  color: white;
+}
+
+.bgFaqs {
+  background: #fffaec;
+}
+
+.bgFrame {
+  background: url(../assets/images/bgFrame.png);
+}
+
+.aboutBg {
+  background-image: url(../assets/images/aboutBannerBg.png);
+}
+
+.contactBg {
+  background-image: url(../assets/images/contactBannerBg.png);
+}
+
+.servicesBg {
+  background-image: url(../assets/images/servicesBannerBg.png);
+}
+
+.bgGradient {
+  background: linear-gradient(90deg, #7c1215 0%, #d93d41 100%);
+}
+
+.teamBg {
+  background-image: url(../assets/images/teamBg.png);
+}
+
+.sticky-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  background-color: rgba(44, 43, 43, 0.9);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 768px) {
+  .sticky-navbar .nav-desktop a {
+    color: black;
+  }
+}
+
+.nav-mobile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  list-style: none;
+  padding: 0;
+}
+
+.nav-mobile li {
+  margin-bottom: 10px;
+  font-family: "Poppins", sans-serif;
+}
+
+.nav-mobile a {
+  text-decoration: none;
+  font-size: 16px;
+  color: white;
+}
+
+.sticky-navbar .nav-mobile a {
+  color: black;
+}
+
+.scroller {
+  display: flex;
+  overflow: hidden;
+  align-items: center;
+}
+
+.scroller-inner {
+  display: flex;
+  white-space: nowrap;
+  animation-name: scroll;
+  animation-duration: 10s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes scroll {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.scroller-item {
+  display: flex;
+  flex-shrink: 0;
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+@media (min-width: 600px) {
+  .scroller-item h1 {
+    font-size: 2rem;
+  }
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
