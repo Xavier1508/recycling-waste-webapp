@@ -128,6 +128,10 @@ button:hover {
   background-image: url(../assets/images/contactBannerBg.png);
 }
 
+.redeemBg {
+  background-image: url(../assets/images/redeemBannerBg.png);
+}
+
 .servicesBg {
   background-image: url(../assets/images/servicesBannerBg.png);
 }

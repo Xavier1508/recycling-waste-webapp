@@ -1,8 +1,7 @@
 import Navbar from "@/components/Navbar";
 import styles from "@/style";
 import React, { useEffect, useState } from "react";
-import ContactBanner from "@/components/ContactBanner";
-import CTA from "@/components/CTA";
+import RedeemBanner from "@/components/RedeemBanner";
 import Footer from "@/components/Footer";
 import { PulseLoader } from "react-spinners";
 import RedeemSection from "@/components/RedeemSection";
@@ -46,7 +45,7 @@ const Redeem = () => {
             </div>
 
             <div
-              className={`${styles.flexStart} bg-cover contactBg bg-no-repeat bg-center relative overflow-hidden`}
+              className={`${styles.flexStart} bg-cover redeemBg bg-no-repeat bg-center relative overflow-hidden`}
             >
               <div className="absolute top-0 left-0 w-full h-full bg-black opacity-30 z-10 pointer-events-none">
                 <div
@@ -59,7 +58,7 @@ const Redeem = () => {
               </div>
 
               <div className={`${styles.boxWidth} relative z-20`}>
-                <ContactBanner />
+                <RedeemBanner />
               </div>
             </div>
           </div>
