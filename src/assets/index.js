@@ -40,6 +40,10 @@ import wastecollectionImg from "../assets/images/wastecollectionImg.png";
 import reviewPerson4 from "../assets/images/reviewPerson4.png";
 import reviewPerson5 from "../assets/images/reviewPerson5.png";
 import reviewPerson3 from "../assets/images/reviewPerson3.png";
+import groceryReward from "../assets/images/grocery-reward.png";
+import cashReward from "../assets/images/cash-reward.png";
+import treeReward from "../assets/images/tree-reward.jpg";
+import voucherReward from "../assets/images/voucher-reward.png";
 
 export {
   logo,
@@ -84,4 +88,8 @@ export {
   recyclingServicesImg,
   solidWasteCollectionImg,
   trashResponsibilityImg,
+  groceryReward,
+  cashReward,
+  treeReward,
+  voucherReward,
 };

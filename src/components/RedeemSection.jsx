@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { groceryReward, cashReward, treeReward, voucherReward} from '../assets';
 
 const rewardOptions = [
   {
@@ -7,28 +8,28 @@ const rewardOptions = [
     title: 'Cash Rewards',
     points: 500,
     description: 'Exchange your points for cash that will be transferred to your account.',
-    image: '/cash-reward.png' // You'll need to add these images to your assets
+    image: cashReward, // You'll need to add these images to your assets
   },
   {
     id: 'groceries',
     title: 'Grocery Package',
     points: 750,
     description: 'Redeem points for a package of essential groceries.',
-    image: '/grocery-reward.png'
+    image: groceryReward,
   },
   {
     id: 'vouchers',
     title: 'Shopping Vouchers',
     points: 300,
     description: 'Get vouchers for popular retail stores and online shops.',
-    image: '/voucher-reward.png'
+    image: voucherReward,
   },
   {
     id: 'plants',
     title: 'Plant a Tree',
     points: 200,
     description: 'Contribute to environmental conservation by planting trees.',
-    image: '/tree-reward.png'
+    image: treeReward,
   }
 ];
 
