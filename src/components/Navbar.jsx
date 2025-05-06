@@ -5,6 +5,8 @@ import Link from "next/link";
 import { navLinks } from "@/constants";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useRouter } from "next/router";
+
 
 const Navbar = () => {
   const [toggle, setToggle] = useState(false);
@@ -52,10 +54,10 @@ const Navbar = () => {
       </ul>
       <div className="space-x-4 md:flex hidden">
         <Link
-          href="mailto:abc@gmail.com"
+          href="/login"  // <-- updated from mailto:abc@gmail.com
           className="button flex-shrink-0 transition-colors text-white py-3 px-6 font-medium text-[18px] font-poppins"
-        >
-          Contact Us
+>
+          Login
         </Link>
       </div>
 
@@ -83,10 +85,10 @@ const Navbar = () => {
             ))}
             <div className="items-center mt-8">
               <Link
-                href="mailto:abc@gmail.com"
-                className="button transition-colors text-[16px] rounded-lg text-white py-3 px-5 font-normal font-poppins"
-              >
-                Contact Us
+               href="/login"  // <-- updated from mailto:abc@gmail.com
+               className="button flex-shrink-0 transition-colors text-white py-3 px-6 font-medium text-[18px] font-poppins"
+             >
+                Login
               </Link>
             </div>
           </ul>
