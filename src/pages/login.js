@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import { PulseLoader } from "react-spinners";
 import styles from "@/style";
 import { useRouter } from "next/router";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import Login from "@/components/Login";
 
 const login = () => {

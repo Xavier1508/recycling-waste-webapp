@@ -28,7 +28,7 @@ const signup = () => {
         </div>
       ) : (
         <>
-          <SignUp />  
+          <SignUp />  |
         </>
       )}
     </div>
