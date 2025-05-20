@@ -15,8 +15,8 @@ const UserProfile = () => {
       {/* Header */}
       <div className="bg-gradient-to-b from-[#bf575a] to-[#7c1215] p-6 flex justify-between items-center text-white rounded-b-xl">
         <div>
-          <p className="text-sm">Selamat Datang</p>
-          <h1 className="text-2xl font-bold">{user.name}</h1>
+          <p className="text-sm ml-4">Selamat Datang</p>
+          <h1 className="text-2xl font-bold ml-5">{user.name}</h1>
         </div>
         <div className="flex gap-4">
           <button className="bg-white text-[#d93d41] px-4 py-2 rounded-full hover:bg-green-100 transition">Saved Address</button>
