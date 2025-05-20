@@ -3,6 +3,13 @@ import { motion } from "framer-motion";
 import { fadeIn, staggerContainer, textVariant } from "../../utils/motion";
 import { tick, wastecollectionImg } from "@/assets";
 import Image from "next/image";
+const liquidWastePoints = [
+  "Pengangkutan limbah cair dari industri dan rumah tangga.",
+  "Penanganan limbah B3 cair dengan standar keselamatan tinggi.",
+  "Sistem penyimpanan dan transportasi yang tertutup dan higienis.",
+  "Kerja sama dengan fasilitas pengolahan limbah cair berizin.",
+  "Monitoring volume dan kualitas limbah secara rutin.",
+];
 
 const LiquidWasteCollection = () => {
   return (
@@ -20,19 +27,16 @@ const LiquidWasteCollection = () => {
             Liquid Waste Collection
           </h1>
           <p className="font-normal text-paragraph md:text-[20px] text-[16px]">
-            Lorem ipsum dolor sit amet consectetur. Scelerisque amet at sem sit
-            sit sed a. Eros est massa habitasse quisque.
+            Pengelolaan limbah cair secara aman dan sesuai regulasi untuk melindungi lingkungan serta kesehatan masyarakat.
           </p>
-          <div className="space-y-2">
-            {[1, 2, 3, 4].map((index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <Image src={tick} alt="" />
-                <p className="text-paragraph md:text-[16px] text-[14px]">
-                  Lorem ipsum dolor sit amet consectetur.
-                </p>
-              </div>
-            ))}
-          </div>
+            <div className="space-y-2">
+              {liquidWastePoints.map((text, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <Image src={tick} alt="Checklist icon" />
+                  <p className="text-paragraph md:text-[16px] text-[14px]">{text}</p>
+                </div>
+              ))}
+            </div>
         </div>
       </div>
     </>

@@ -24,6 +24,8 @@ import {
   reviewPerson3,
   teamMember2,
   teamMember3,
+  teamMember4,
+  teamMember5,
 } from "../assets";
 
 export const navLinks = [
@@ -98,22 +100,36 @@ export const teamMembers = [
   {
     id: "member-1",
     img: teamMember,
-    name: "Jessica",
-    title: "Lorem Ipsum",
+    name: "Xavier",
+    title: "CEO & Founder",
     background: teamBg,
   },
   {
     id: "member-2",
     img: teamMember2,
-    name: "Jessica",
-    title: "Lorem Ipsum",
+    name: "Thio",
+    title: "CTO & Co-Founder",
     background: teamBg,
   },
   {
     id: "member-3",
     img: teamMember3,
-    name: "Jessica",
-    title: "Lorem Ipsum",
+    name: "Christoper Panic Deadline",
+    title: "COO & Co-Founder",
+    background: teamBg,
+  },
+  {
+    id: "member-4",
+    img: teamMember4,
+    name: "Putra Wakekok",
+    title: "Holiday Manager",
+    background: teamBg,
+  },
+  {
+    id: "member-5",
+    img: teamMember5,
+    name: "Nicho",
+    title: "Our New Pope, Habemus Papam!",
     background: teamBg,
   },
 ];
@@ -122,48 +138,48 @@ export const testimonials = [
   {
     id: "testimonials-1",
     content:
-      "“Es ist ein lang erwiesener Fakt, dass ein Leser vom Text wird, wenn er sich ein Layout ansieht.”",
-    name: "Sam Ron",
+      "“Layanan pengelolaan limbah yang sangat profesional dan tepat waktu. Sangat membantu kami menjaga lingkungan kantor tetap bersih.”",
+    name: "We Tok De Tok",
     img: reviewPerson,
     rating: reviewStars2,
   },
   {
     id: "testimonials-2",
     content:
-      "“Es ist ein lang erwiesener Fakt, dass ein Leser vom Text wird, wenn er sich ein Layout ansieht.”",
-    name: "Jessica",
+      "“Proses pengumpulan limbah yang efisien dan ramah lingkungan. Timnya sangat responsif dan mudah diajak bekerja sama.”",
+    name: "Hockowi",
     img: reviewPerson2,
     rating: reviewStars,
   },
   {
     id: "testimonials-3",
     content:
-      "“Es ist ein lang erwiesener Fakt, dass ein Leser vom Text wird, wenn er sich ein Layout ansieht.”",
-    name: "Anna",
+      "“Saya sangat puas dengan layanan daur ulang yang mereka tawarkan. Membantu kami mengurangi sampah dan meningkatkan kesadaran lingkungan.”",
+    name: "Xian Jink",
     img: reviewPerson3,
     rating: reviewStars2,
   },
   {
     id: "testimonials-4",
     content:
-      "“Es ist ein lang erwiesener Fakt, dass ein Leser vom Text wird, wenn er sich ein Layout ansieht.”",
-    name: "Sarah",
+      "“Mereka selalu datang tepat waktu dan memberikan solusi pengelolaan limbah yang sangat praktis untuk kebutuhan rumah tangga kami.”",
+    name: "Nona Ambon",
     img: reviewPerson4,
     rating: reviewStars2,
   },
   {
     id: "testimonials-5",
     content:
-      "“Es ist ein lang erwiesener Fakt, dass ein Leser vom Text wird, wenn er sich ein Layout ansieht.”",
-    name: "John Dux",
+      "“Layanan pengangkutan limbah cair yang aman dan sesuai standar. Saya merasa sangat terbantu dengan profesionalisme tim ini.”",
+    name: "Stecu Stecu Stelan Cuek Baru Malu",
     img: reviewPerson5,
     rating: reviewStars,
   },
   {
     id: "testimonials-6",
     content:
-      "“Es ist ein lang erwiesener Fakt, dass ein Leser vom Text wird, wenn er sich ein Layout ansieht.”",
-    name: "Jessica",
+      "“Fleksibilitas dan kemudahan dalam penjadwalan online membuat pengalaman menggunakan layanan mereka sangat menyenangkan.”",
+    name: "Prabroro",
     img: reviewPerson,
     rating: reviewStars2,
   },
@@ -172,27 +188,27 @@ export const testimonials = [
 export const workingHours = [
   {
     id: "hour-1",
-    day: "Monday",
+    day: "Senin",
     timing: "9:00 AM To 6:00 PM",
   },
   {
     id: "hour-2",
-    day: "Tuesday",
+    day: "Selasa",
     timing: "9:00 AM To 6:00 PM",
   },
   {
     id: "hour-3",
-    day: "Wednesday",
+    day: "Rabu",
     timing: "9:00 AM To 6:00 PM",
   },
   {
     id: "hour-4",
-    day: "Thursday",
+    day: "Kamis",
     timing: "9:00 AM To 6:00 PM",
   },
   {
     id: "hour-5",
-    day: "Friday",
+    day: "Jumat",
     timing: "9:00 AM To 6:00 PM",
   },
 ];
@@ -202,21 +218,21 @@ export const servicesCards = [
     id: "card-1",
     title: "Recycling Services",
     content:
-      "“Es ist ein lang erwiesener Fakt, dass ein Leser vom Text wird, wenn er sich ein Layout ansieht.”",
+      "“Layanan daur ulang limbah rumah tangga dan industri untuk mendukung pelestarian lingkungan dan ekonomi sirkular.”",
     img: recyclingServicesImg,
   },
   {
     id: "card-2",
     title: "Solid Waste Collection",
     content:
-      "“Es ist ein lang erwiesener Fakt, dass ein Leser vom Text wird, wenn er sich ein Layout ansieht.”",
+      "“Pengangkutan limbah padat secara terjadwal dan aman dari berbagai jenis lokasi, mulai dari rumah hingga fasilitas umum.”",
     img: solidWasteCollectionImg,
   },
   {
     id: "card-3",
     title: "Liquid Waste Collection",
     content:
-      "“Es ist ein lang erwiesener Fakt, dass ein Leser vom Text wird, wenn er sich ein Layout ansieht.”",
+      "“Penanganan limbah cair yang aman dan sesuai standar, menjaga kebersihan lingkungan dan kesehatan masyarakat.”",
     img: liquidWasteCollectionImg,
   },
 ];
@@ -226,21 +242,21 @@ export const processesCards = [
     id: "card-1",
     title: "Efficient Collection",
     content:
-      "“Es ist ein lang erwiesener Fakt, dass ein Leser vom Text wird, wenn er sich ein Layout ansieht.”",
+      "“Kami menyediakan layanan pengumpulan sampah yang cepat, tepat waktu, dan disesuaikan dengan kebutuhan lingkungan sekitar.”",
     img: efficientCollectionImg,
   },
   {
     id: "card-2",
     title: "Innovative Sorting Techniques",
     content:
-      "“Es ist ein lang erwiesener Fakt, dass ein Leser vom Text wird, wenn er sich ein Layout ansieht.”",
+      "“Menggunakan teknologi dan metode terbaru untuk memilah limbah secara efisien demi mendukung proses daur ulang yang optimal.”",
     img: inovativeSortingImg,
   },
   {
     id: "card-3",
     title: "Eco-Friendly Disposal Methods",
     content:
-      "“Es ist ein lang erwiesener Fakt, dass ein Leser vom Text wird, wenn er sich ein Layout ansieht.”",
+      "“Pembuangan limbah yang bertanggung jawab dan ramah lingkungan, demi masa depan yang berkelanjutan.”",
     img: disposableMethodsImg,
   },
 ];
@@ -254,7 +270,7 @@ export const stats = [
   {
     id: "stats-2",
     title: "Clients Helped",
-    value: "100K",
+    value: "790K",
   },
 ];
 
@@ -314,32 +330,32 @@ export const footerLinks = [
 export const faqs = [
   {
     id: 1,
-    question: "Popular Articles",
+    question: "Gimana Cara Order Layanan Jemput Sampah?",
     answer:
-      "Suspendisse ipsum elit, hendrerit id eleifend at, condimentum et mauris. Curabitur et libero vel arcu dignissim pulvinar ut ac leo. In sit amet orci et erat accumsan interdum.",
+      "Gampang banget! Kamu tinggal pesan lewat aplikasi atau WhatsApp kami. Pilih waktu penjemputan, isi alamatmu, dan tim kami akan langsung jemput sampahmu sesuai jadwal. Gak perlu repot!",
   },
   {
     id: 2,
-    question: "Fix problems & request removals",
+    question: "Apakah Harus Pisahin Sampah Dulu?",
     answer:
-      "Suspendisse ipsum elit, hendrerit id eleifend at, condimentum et mauris. Curabitur et libero vel arcu dignissim pulvinar ut ac leo. In sit amet orci et erat accumsan interdum.",
+      "Kalau bisa, iya dong! Kamu bisa pisahin sampah organik, anorganik, dan daur ulang. Tapi kalau belum sempat, tenang aja—tim kami akan bantu sortir ulang dengan standar ramah lingkungan.",
   },
   {
     id: 3,
-    question: "Browse the web",
+    question: "Area Mana Aja yang Bisa Dijemput?",
     answer:
-      "Suspendisse ipsum elit, hendrerit id eleifend at, condimentum et mauris. Curabitur et libero vel arcu dignissim pulvinar ut ac leo. In sit amet orci et erat accumsan interdum.",
+      "Saat ini kami melayani beberapa area di kota kamu. Cek daftar area di aplikasi atau website kami. Belum ada di daerahmu? Tungguin ya, kami terus berkembang!",
   },
   {
     id: 4,
-    question: "Search on your phone or tablet",
+    question: "Apakah Ada Biayanya?",
     answer:
-      "Suspendisse ipsum elit, hendrerit id eleifend at, condimentum et mauris. Curabitur et libero vel arcu dignissim pulvinar ut ac leo. In sit amet orci et erat accumsan interdum.",
+      "Ada, tapi tenang, terjangkau kok! Biaya tergantung frekuensi penjemputan dan volume sampah. Semua info harga transparan bisa kamu lihat sebelum checkout.",
   },
   {
     id: 5,
-    question: "Fix problems & request removals",
+    question: "Dapat Apa Aja Selain Layanan Jemput?",
     answer:
-      "Suspendisse ipsum elit, hendrerit id eleifend at, condimentum et mauris. Curabitur et libero vel arcu dignissim pulvinar ut ac leo. In sit amet orci et erat accumsan interdum.",
+      "Selain rumah bersih, kamu juga bisa dapetin poin reward tiap kali jemput sampah. Poin bisa ditukar hadiah menarik, diskon, bahkan voucher belanja! Asik kan?",
   },
 ];

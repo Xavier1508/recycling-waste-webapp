@@ -12,8 +12,7 @@ const CTA = () => {
           Services Provider For 30 Years!!
         </h3>
         <p className="mb-6 font-normal text-[16px] md:text-lg pb-8">
-          Lorem ipsum dolor sit amet consectetur. Porttitor dictumst in ultrices
-          proin gravida. Aenean at.
+          Dengan pengalaman lebih dari 30 tahun, kami menjadi mitra terpercaya dalam menyediakan solusi pengelolaan sampah komersial yang efisien, inovatif, dan ramah lingkungan.
         </p>
         <Link href="contactus">
           <button className="text-black md:text-[18px] text-[12px] bg-white hover:bg-dimWhite transition-colors font-bold rounded-full text-sm px-6 md:px-10 py-3.5 inline-block">

@@ -23,30 +23,13 @@ const Cards = () => {
           <h1
             className={`text-white font-bold md:text-[32px]  text-center md:text-left ${styles.marginY}`}
           >
-            Services That
-            <br /> Match Your Needs
+            Layanan yang Sesuai
+            <br /> dengan Kebutuhan Anda
           </h1>
           <p
             className={`text-white ${styles.marginY} md:text-[18px] text-[16px] w-[520px] text-center md:text-left`}
           >
-            Lorem ipsum dolor sit amet consectetur. In convallis eget eleifend
-            pellentesque. Auctor fermentum placerat.
-          </p>
-        </div>
-        <div
-          className={`lg:hidden !bg-center w-full flex flex-col md:flex-row md:justify-between space-y-2 py-2 items-center md:h-[380px] h-[250px] mt-10 rounded-2xl px-16 mx-auto ${styles.marginY}`}
-        >
-          <h1
-            className={`text-[#424242] font-bold md:text-[32px] text-[24px] text-center md:text-left ${styles.marginY}`}
-          >
-            Services That
-            <br /> Match Your Needs
-          </h1>
-          <p
-            className={`text-[#424242] ${styles.marginY} md:text-[18px] text-[14px] text-center md:text-left`}
-          >
-            Lorem ipsum dolor sit amet consectetur. In convallis eget eleifend
-            pellentesque. Auctor fermentum placerat.
+            Kami menyediakan berbagai layanan pengelolaan limbah yang dirancang untuk memenuhi kebutuhan rumah tangga, industri, dan lingkungan secara efisien dan bertanggung jawab.
           </p>
         </div>
 

@@ -14,8 +14,8 @@ const ServicesBanner = () => {
         Waste Management
       </h1>
       <p className="text-white text-left transition-colors font-poppins md:text-[18px] text-[14px] mt-4">
-        Lorem ipsum dolor sit amet consectetur. Velit at faucibus eleifend
-        netus. Sagittis aliquam in nullam sit dolor arcu.
+        Komitmen kami adalah memberikan pelayanan terbaik dalam <br /> 
+        menjaga kebersihan dan kelestarian lingkungan.
       </p>
     </section>
   );

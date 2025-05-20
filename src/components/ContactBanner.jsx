@@ -11,11 +11,11 @@ const contactBanner = () => {
       <h1 className="text-white transition-colors text-left font-poppins font-bold text-[28px] md:text-[38px] lg:text-[56px]">
         Connect with
         <br />
-        Sustainable Solutions
+        Trash Trade
       </h1>
       <p className="text-white text-left transition-colors font-poppins text-[16px] md:text-[18px] mt-4">
-        Lorem ipsum dolor sit amet consectetur. Velit at faucibus eleifend
-        netus. Sagittis aliquam in nullam sit dolor arcu.
+        Bergabunglah dengan kami untuk menghadirkan solusi <br />
+        berkelanjutan yang inovatif dan berdampak positif bagi lingkungan dan masyarakat.
       </p>
     </section>
   );

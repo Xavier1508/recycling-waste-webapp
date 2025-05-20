@@ -8,8 +8,7 @@ const RichText = () => {
           Competitive And Reliable Waste Collection
         </h1>
         <p className="font-normal md:text-[18px] text-[14px]">
-          Lorem ipsum dolor sit amet consectetur. Scelerisque amet at sem sit
-          sit sed a. Eros est massa habitasse quisque.
+          Layanan pengumpulan sampah yang efisien, kompetitif dalam harga, dan dapat diandalkan untuk memenuhi kebutuhan lingkungan perumahan maupun komersial.
         </p>
       </section>
     </>

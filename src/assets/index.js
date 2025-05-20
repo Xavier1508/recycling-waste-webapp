@@ -44,6 +44,8 @@ import groceryReward from "../assets/images/grocery-reward.png";
 import cashReward from "../assets/images/cash-reward.png";
 import treeReward from "../assets/images/tree-reward.jpg";
 import voucherReward from "../assets/images/voucher-reward.png";
+import teamMember4 from "../assets/images/teamMember4.png";
+import teamMember5 from "../assets/images/teamMember5.png";
 
 export {
   logo,
@@ -59,6 +61,8 @@ export {
   projectTwo,
   teamMember2,
   teamMember3,
+  teamMember4,
+  teamMember5,
   projectThree,
   projectFour,
   teamMember,
