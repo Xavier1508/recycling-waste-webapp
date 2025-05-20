@@ -16,7 +16,7 @@ const SignUp = () => {
             <p className="text-xs text-center text-gray-500">
               By continuing, you agree to the <a href="#" className="underline">Terms of use</a> and <a href="#" className="underline">Privacy Policy</a>.
             </p>
-            <button type="submit" className="w-full bg-green-500 text-white py-2 rounded-full font-semibold">
+            <button type="submit" className="w-full bg-[#d93d41] text-white py-2 rounded-full font-semibold">
               Daftar
             </button>
           </form>

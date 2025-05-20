@@ -11,7 +11,7 @@ const Login = () => {
           <form className="space-y-4">
             <input
               type="text"
-              placeholder="Email address or user name"
+              placeholder="Email address or username"
               className="w-full p-3 border rounded"
             />
             <div className="relative">
@@ -25,7 +25,7 @@ const Login = () => {
               <input type="checkbox" id="remember" className="mr-2" />
               <label htmlFor="remember" className="text-sm">Remember me</label>
             </div>
-            <button type="submit" className="w-full bg-green-500 text-white py-2 rounded-full font-semibold">
+            <button type="submit" className="w-full bg-[#d93d41] text-white py-2 rounded-full font-semibold">
               Login
             </button>
             <p className="text-xs text-center text-gray-500">

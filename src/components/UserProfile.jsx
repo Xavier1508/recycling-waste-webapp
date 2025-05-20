@@ -7,33 +7,33 @@ const UserProfile = () => {
     activePoints: 900,
     incomingPoints: 1000,
     outgoingPoints: 100,
-    articles: [], // Kosong (tidak ada data artikel)
+    articles: [], 
   };
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-400 to-green-500 p-6 flex justify-between items-center text-white rounded-b-xl">
+      <div className="bg-gradient-to-b from-[#bf575a] to-[#7c1215] p-6 flex justify-between items-center text-white rounded-b-xl">
         <div>
           <p className="text-sm">Selamat Datang</p>
           <h1 className="text-2xl font-bold">{user.name}</h1>
         </div>
         <div className="flex gap-4">
-          <button className="bg-white text-green-600 px-4 py-2 rounded-full hover:bg-green-100 transition">Saved Address</button>
-          <button className="bg-white text-green-600 px-4 py-2 rounded-full hover:bg-green-100 transition">Edit Profile</button>
-          <button className="bg-white text-green-600 px-4 py-2 rounded-full hover:bg-green-100 transition">Log Out</button>
+          <button className="bg-white text-[#d93d41] px-4 py-2 rounded-full hover:bg-green-100 transition">Saved Address</button>
+          <button className="bg-white text-[#d93d41] px-4 py-2 rounded-full hover:bg-green-100 transition">Edit Profile</button>
+          <button className="bg-white text-[#d93d41] px-4 py-2 rounded-full hover:bg-green-100 transition">Log Out</button>
         </div>
       </div>
 
       {/* Content */}
       <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Points Card */}
-        <div className="bg-gradient-to-r from-green-400 to-green-500 text-white rounded-xl p-6 shadow-lg flex flex-col justify-between">
+        <div className="bg-gradient-to-r from-[#d93d41] to-[#7c1215] text-white rounded-xl p-6 shadow-lg flex flex-col justify-between">
           <div>
             <h2 className="text-xl font-semibold">Loyalty Points</h2>
             <p className="mt-4 text-sm">Active Points</p>
             <p className="text-3xl font-bold">{user.activePoints} Points</p>
-            <button className="mt-4 bg-white text-green-600 px-4 py-2 rounded-full hover:bg-green-100 transition">
+            <button className="mt-4 bg-white text-[#d93d41] px-4 py-2 rounded-full hover:bg-green-100 transition">
               Exchange Points
             </button>
           </div>
@@ -55,9 +55,9 @@ const UserProfile = () => {
         <div className="space-y-6">
           {/* Menu Shortcuts */}
           <div className="bg-white rounded-xl p-6 shadow-md grid grid-cols-3 gap-4 text-center">
-            <div className="bg-green-100 text-green-600 rounded-lg py-4">Katalog Sampah</div>
-            <div className="bg-green-100 text-green-600 rounded-lg py-4">Drop Point</div>
-            <div className="bg-green-100 text-green-600 rounded-lg py-4">Pick Up</div>
+            <div className="bg-[#bf575a] text-[#ffffff] rounded-lg py-4">Katalog Sampah</div>
+            <div className="bg-[#bf575a] text-[#ffffff] rounded-lg py-4">Drop Point</div>
+            <div className="bg-[#bf575a] text-[#ffffff] rounded-lg py-4">Pick Up</div>
           </div>
 
           {/* Articles */}

@@ -12,12 +12,24 @@ const ProfilePage = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  return (
-    <div>
-      {loading ? (
-        <div className="h-screen flex justify-center items-center bg-white">
-          <PulseLoader color="#10B981" size={15} />
-        </div>
+ const override = `
+   display: block;
+   margin: 0 auto;
+ `;
+ 
+   return (
+     <div>
+       {loading ? (
+         <div className="sweet-loading bgRedGradient flex justify-center items-center h-screen">
+           <PulseLoader
+             color="#ffff"
+             loading={loading}
+             size={15}
+             css={override}
+             aria-label="Loading Spinner"
+             data-testid="loader"
+           />
+         </div>
       ) : (
         <>
           {/* Navbar */}
@@ -28,7 +40,7 @@ const ProfilePage = () => {
           </div>
 
           {/* User Profile Content */}
-          <div className="pt-28 bg-[#22D94B]"></div>
+          <div className="pt-28 bg-[#bf575a]"></div>
           <UserProfile />
         </>
       )}
