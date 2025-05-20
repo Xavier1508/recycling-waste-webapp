@@ -40,13 +40,10 @@ const LetsTalk = () => {
     <div className="flex md:flex-row flex-col w-full md:space-x-12 space-x-0 space-y-6 items-center justify-center mx-auto md:py-24 py-18 pt-10 px-5">
       <div className="text-left w-full max-w-[500px] space-y-5">
         <h1 className="font-bold md:text-[44px] text-[#424242] text-[26px] leading-tight">
-          Tell Us About Your Problem, Let’s Talk!
+          Ceritakan Masalah Anda, Mari Kita Bicara!
         </h1>
         <p className="font-normal text-paragraph md:text-[20px] text-[16px]">
-          Lorem ipsum dolor sit amet consectetur. Posuere tortor id et
-          adipiscing phasellus orci at. Tellus tempus morbi in pharetra nibh.
-          Facilisis malesuada quis nam adipiscing. Sed tincidunt lacus ipsum
-          lectus molestie dolor. Massa sit.
+          Kami siap mendengarkan dan membantu Anda. Jangan ragu untuk menghubungi kami terkait pertanyaan, saran, atau kendala yang Anda hadapi. Tim kami akan berusaha memberikan solusi terbaik dengan cepat dan tepat. Silakan isi formulir di bawah ini, dan kami akan segera menghubungi Anda.
         </p>
       </div>
       <form

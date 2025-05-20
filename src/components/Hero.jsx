@@ -12,12 +12,12 @@ const Hero = () => {
       className={`${styles.flexStart} flex-col text-left md:px-28 xl:px-18 px-4 md:h-[950px] h-[820px] space-y-8 mx-auto`}
     >
       <h1 className="text-white transition-colors font-poppins font-bold text-[28px] md:text-[40px] lg:text-[56px]">
-        Waste Management <br />
-        is Our Responsibility
+        Pengelolaan Sampah adalah<br />
+        Tanggung Jawab Kita Bersama
       </h1>
       <p className="text-white text-left transition-colors font-poppins md:text-[18px] text-[14px] mt-4">
-        Lorem ipsum dolor sit amet consectetur. Velit at faucibus eleifend
-        netus. Sagittis aliquam in nullam sit dolor arcu.
+        Kami berkomitmen untuk menciptakan lingkungan yang bersih dan berkelanjutan. <br />
+        Dengan solusi inovatif dan pendekatan ramah lingkungan, kami bantu wujudkan masa depan yang lebih hijau.
       </p>
       <Link href="contactus">
         <button className="button py-4 px-7 font-semibold md:text-[18px] text-[14px] text-white">

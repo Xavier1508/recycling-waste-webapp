@@ -3,6 +3,13 @@ import Image from "next/image";
 import React from "react";
 import { fadeIn, staggerContainer, textVariant } from "../../utils/motion";
 import { motion } from "framer-motion";
+const solidWastePoints = [
+  "Pengangkutan limbah secara berkala dengan armada profesional.",
+  "Pengumpulan dari berbagai jenis sumber (rumah, kantor, industri).",
+  "Penanganan limbah non-berbahaya dan berbahaya sesuai ketentuan.",
+  "Pemilahan awal untuk efisiensi proses lanjutan.",
+  "Layanan fleksibel yang dapat disesuaikan dengan kebutuhan pelanggan.",
+];
 
 const SolidWasteCollection = () => {
   return (
@@ -13,19 +20,16 @@ const SolidWasteCollection = () => {
             Solid Waste Collection
           </h1>
           <p className="font-normal text-paragraph md:text-[20px] text-[16px]">
-            Lorem ipsum dolor sit amet consectetur. Scelerisque amet at sem sit
-            sit sed a. Eros est massa habitasse quisque.
+            Layanan pengumpulan limbah padat yang andal dan terjadwal untuk rumah tangga, bisnis, dan fasilitas umum.
           </p>
-          <div className="space-y-2">
-            {[1, 2, 3, 4].map((index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <Image src={tick} alt="" />
-                <p className="text-paragraph md:text-[16px] text-[14px]">
-                  Lorem ipsum dolor sit amet consectetur.
-                </p>
-              </div>
-            ))}
-          </div>
+            <div className="space-y-2">
+              {solidWastePoints.map((text, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <Image src={tick} alt="Checklist icon" />
+                  <p className="text-paragraph md:text-[16px] text-[14px]">{text}</p>
+                </div>
+              ))}
+            </div>
         </div>
         <div className="flex items-center justify-center">
           <Image

@@ -17,11 +17,10 @@ const LeftImgRightContent = () => {
       </div>
       <div className="text-left w-full max-w-[450px] space-y-5">
         <h1 className="font-bold md:text-[28px] text-[22px]">
-          Helping Different Industries And Facilities
+          Kami Jemput Sampahmu, Biar Kamu Gak Ribet!
         </h1>
         <p className="font-normal text-paragraph md:text-[20px] text-[16px]">
-          Lorem ipsum dolor sit amet consectetur. Scelerisque amet at sem sit
-          sit sed a. Eros est massa habitasse quisque.
+          Gak sempat atau malas buang sampah? Tenang aja, kami hadir untuk bantu kamu tetap menjaga kebersihan tanpa harus repot keluar rumah. Layanan penjemputan sampah kami praktis, cepat, dan bisa diandalkan!
         </p>
         <Link href="#">
           <button className="button text-white text-sm py-3 px-6 mt-5">

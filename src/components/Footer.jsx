@@ -18,7 +18,7 @@ const Footer = () => (
           className="w-[100px] h-[100px] object-contain"
         />
         <p className="text-secondary md:text-[16px] text-[14px] mt-4 text-left">
-          Lorem ipsum dolor sit amet consectetur. Sit lacus natoque porttitor.
+          Kami selalu siap menyambut Anda! Untuk info terkini, promo, atau kabar terbaru, jangan lupa ikuti kami di media sosial.
         </p>
         <div className="flex flex-col items-start md:mt-0 mt-4 md:mb-0 mb-10">
           <p className="mb-2 md:mb-4 font-poppins font-normal text-white">
@@ -90,7 +90,7 @@ const Footer = () => (
 
     <div className="w-full items-center md:flex-row flex-col pt-6 border-t-[1px] border-t-[#3F3E45] mt-20">
       <p className="text-center text-[14px] leading-[27px] text-white">
-        © 2023 ZMGT. All rights reserved.
+        © 2025 TrashTrade. All rights reserved.
       </p>
     </div>
   </footer>

@@ -21,14 +21,13 @@ const OurLocaton = () => {
           variants={textVariant(1.1)}
           className="font-bold md:text-[38px] text-[22px]"
         >
-          Our Location & Hours
+          Lokasi & Jam Kerja Kami
         </motion.h1>
         <motion.p
           variants={textVariant(1.2)}
           className="font-normal text-paragraph md:text-[20px] text-[16px]"
         >
-          Lorem ipsum dolor sit amet consectetur. Scelerisque amet at sem sit
-          sit sed a. Eros est massa habitasse quisque.
+          Kantor kami siap melayani anda dari hari Senin hingga Jumat dengan jam operasional yang tetap. Kami berlokasi strategis dan mudah diakses, siap membantu segala kebutuhan dan pertanyaan anda. Jangan ragu untuk menghubungi atau mengunjungi kami pada jam kerja berikut:
         </motion.p>
         <motion.div
           variants={staggerContainer}

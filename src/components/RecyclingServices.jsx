@@ -3,6 +3,12 @@ import { motion } from "framer-motion";
 import { fadeIn, staggerContainer, textVariant } from "../../utils/motion";
 import Image from "next/image";
 import { tick, wastecollectionImg } from "@/assets";
+const points = [
+  "Pemisahan limbah berdasarkan kategori (plastik, logam, kertas, dll).",
+  "Proses daur ulang yang efisien dan sesuai standar industri.",
+  "Edukasi dan dukungan untuk program daur ulang komunitas.",
+  "Mendukung pengurangan limbah ke TPA melalui pemanfaatan kembali bahan.",
+];
 
 const RecyclingServices = () => {
   return (
@@ -20,21 +26,18 @@ const RecyclingServices = () => {
             Recycling Services
           </h1>
           <p className="font-normal text-paragraph md:text-[20px] text-[16px]">
-            Lorem ipsum dolor sit amet consectetur. Scelerisque amet at sem sit
-            sit sed a. Eros est massa habitasse quisque.
+            Kami menyediakan layanan daur ulang yang terintegrasi untuk berbagai jenis limbah, mendukung ekonomi sirkular dan pelestarian lingkungan.
           </p>
-          <div className="space-y-2">
-            {[1, 2, 3, 4].map((index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <Image src={tick} alt="" />
-                <p className="text-paragraph md:text-[16px] text-[14px]">
-                  Lorem ipsum dolor sit amet consectetur.
-                </p>
-              </div>
-            ))}
+            <div className="space-y-2">
+              {points.map((text, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <Image src={tick} alt="Checklist icon" />
+                  <p className="text-paragraph md:text-[16px] text-[14px]">{text}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
     </>
   );
 };

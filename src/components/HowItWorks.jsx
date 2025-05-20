@@ -12,8 +12,7 @@ const HowItWorks = () => {
             We Treat Your Trash Responsibly For A Greener Planet!
           </h1>
           <p className="font-normal text-paragraph md:text-[20px] text-[16px]">
-            Lorem ipsum dolor sit amet consectetur. Posuere tortor id et
-            adipiscing phasellus orci at.
+            Kami berkomitmen mengelola sampah Anda secara bertanggung jawab dengan metode ramah lingkungan, demi mewujudkan masa depan yang lebih bersih dan hijau bagi semua.
           </p>
         </div>
         <Image
@@ -28,9 +27,7 @@ const HowItWorks = () => {
             Provide Us With The Details
           </h1>
           <p className="font-normal text-paragraph md:text-[16px] text-[14px]">
-            Lorem ipsum dolor sit amet consectetur. Posuere tortor id et
-            adipiscing phasellus orci at. Tellus tempus morbi in pharetra nibh.
-            Facilisis malesuada quis nam adipiscing.
+            Cukup beri tahu kami jenis dan kebutuhan pengelolaan sampah Anda. Tim kami akan membantu menyiapkan solusi yang paling tepat dan efisien.
           </p>
         </div>
 
@@ -39,9 +36,7 @@ const HowItWorks = () => {
             Pick The Suitable Plan For You
           </h1>
           <p className="font-normal text-paragraph md:text-[16px] text-[14px]">
-            Lorem ipsum dolor sit amet consectetur. Posuere tortor id et
-            adipiscing phasellus orci at. Tellus tempus morbi in pharetra nibh.
-            Facilisis malesuada quis nam adipiscing.
+            Tersedia berbagai pilihan layanan pengelolaan sampah yang fleksibel, yang dapat disesuaikan dengan kebutuhan rumah, kantor, maupun industri Anda.
           </p>
         </div>
         <div className="border-b-2 py-3">
@@ -49,9 +44,7 @@ const HowItWorks = () => {
             Online Scheduling In Few Clicks
           </h1>
           <p className="font-normal text-paragraph md:text-[16px] text-[14px]">
-            Lorem ipsum dolor sit amet consectetur. Posuere tortor id et
-            adipiscing phasellus orci at. Tellus tempus morbi in pharetra nibh.
-            Facilisis malesuada quis nam adipiscing.
+            Atur jadwal layanan kapan saja dengan sistem pemesanan online yang cepat dan mudah, tanpa proses rumit.
           </p>
         </div>
         <div className="border-b-2 py-3">
@@ -59,9 +52,7 @@ const HowItWorks = () => {
             We Collect Waste Immediately
           </h1>
           <p className="font-normal text-paragraph md:text-[16px] text-[14px]">
-            Lorem ipsum dolor sit amet consectetur. Posuere tortor id et
-            adipiscing phasellus orci at. Tellus tempus morbi in pharetra nibh.
-            Facilisis malesuada quis nam adipiscing.
+            Begitu jadwal dikonfirmasi, tim kami akan segera menjemput sampah dari lokasi Anda dengan cepat dan tepat waktu.
           </p>
         </div>
         <Link href="contactus">

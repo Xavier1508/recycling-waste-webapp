@@ -18,12 +18,11 @@ const ContactusAt = () => {
         </div>
         <div className="text-left w-full max-w-[450px] space-y-3">
           <h1 className="font-bold md:text-[44px] text-[26px] text-[#424242]">
-            Contact Us At
+            Hubungi Kami Secara Langusung
           </h1>
           <p className="font-normal text-paragraph md:text-[18px] text-[14px]">
-            Address: <br />
-            Lorem ipsum dolor sit amet consectetur. Scelerisque amet at sem sit
-            sit sed a. Eros est massa habitasse quisque.
+            Alamat: <br />
+            Jl. Raya Kb. Jeruk No.27, Kb. Jeruk, Kec. Kb. Jeruk, Kota Jakarta Barat, Daerah Khusus Ibukota Jakarta 11540
           </p>
           <div className="font-normal text-paragraph md:text-[18px] text-[14px] space-y-5">
             <div>
@@ -32,7 +31,7 @@ const ContactusAt = () => {
             </div>
             <div>
               <p>Email:</p>
-              <p>help@zmgt.com</p>
+              <p>trashtrade12345@zmgt.com</p>
             </div>
             <div className="flex flex-col items-start md:mt-0 mt-4 md:mb-0 mb-10">
               <p className="mb-2 md:mb-4 font-poppins font-normal text-[#898989F]">

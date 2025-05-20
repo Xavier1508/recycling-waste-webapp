@@ -12,11 +12,10 @@ const Testimonials = () => {
       <section className="w-full space-y-8 my-14">
         <div className="space-y-5 flex flex-col text-center items-center px-3">
           <h1 className="md:text-[36px] sm:text-[24px] text-[22px] font-bold text-[#424242]">
-            What Our Customer Say About Us?
+            Apa Kata Pelanggan Kami?
           </h1>
           <p className="text-paragraph w-full md:text-[18px] text-[14px]">
-            Lorem ipsum dolor sit amet consectetur. Phasellus arcu facilisis at
-            lectus nibh. Duis elementum tempor cursus.
+            Dengarkan langsung dari pelanggan kami bagaimana layanan kami membantu mereka menjaga kebersihan lingkungan dengan mudah dan praktis.
           </p>
         </div>
         <Swiper
