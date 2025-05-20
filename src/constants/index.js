@@ -47,6 +47,10 @@ export const navLinks = [
     id: "/contactus",
     title: "Contact Us",
   },
+  {
+    id: "/userprofile",
+    title: "Profile",
+  },
 ];
 
 export const clients = [
@@ -270,14 +274,18 @@ export const footerLinks = [
         name: "About Us",
         link: "/aboutus",
       },
-      {
-        name: "Redeem",  // Add new redeem link
-        link: "/redeem",
-      },
-      {
-        name: "Contact Us",
-        link: "/contactus",
-      },
+      // {
+      //   name: "Redeem",  // Add new redeem link
+      //   link: "/redeem",
+      // },
+      // {
+      //   name: "Contact Us",
+      //   link: "/contactus",
+      // },
+      // {
+      //   id: "/userprofile",
+      //   title: "Profile",
+      // },
     ],
   },
   {
