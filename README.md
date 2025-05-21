@@ -27,6 +27,7 @@ Follow these steps to set up the project locally:
 
    ```bash
    npm install
+   npm install react-icons
    ```
 
 3. **Run the Development Server:**
