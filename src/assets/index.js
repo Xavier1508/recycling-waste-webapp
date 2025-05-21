@@ -46,6 +46,9 @@ import treeReward from "../assets/images/tree-reward.jpg";
 import voucherReward from "../assets/images/voucher-reward.png";
 import teamMember4 from "../assets/images/teamMember4.png";
 import teamMember5 from "../assets/images/teamMember5.png";
+import Organik from "../assets/images/Organik.png";
+import Anorganik from "../assets/images/Anorganik.png";
+import B3 from "../assets/images/B3.png";
 
 export {
   logo,
@@ -96,4 +99,7 @@ export {
   cashReward,
   treeReward,
   voucherReward,
+  Organik,
+  Anorganik,
+  B3,
 };

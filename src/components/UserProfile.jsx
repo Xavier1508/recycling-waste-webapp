@@ -85,12 +85,14 @@ const UserProfile = () => {
               <span className="text-xs sm:text-sm mt-1 text-white">Drop Point</span>
             </div>
 
+              <Link href="/pickup">
             <div className="flex flex-col items-center justify-center bg-[#bf575a] w-20 sm:w-24 h-20 sm:h-24 rounded-lg py-2 mx-auto">
               <div className="text-white">
                 <FaTruckMoving className="text-3xl sm:text-4xl" />
               </div>
               <span className="text-xs sm:text-sm mt-1 text-white">Pick Up</span>
             </div>
+              </Link>
           </div>
 
 
