@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link"; 
-// import { FaRegEyeSlash } from "react-icons/fa";
+import { FaRegEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   return (
