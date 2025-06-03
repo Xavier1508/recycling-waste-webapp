@@ -1,48 +1,72 @@
-import logo from "./logo.png";
-import arrowUp from "./arrowUp.png";
-import arrowDown from "./arrowDown.png";
-import menu from "./menu.svg";
-import close from "./close.svg";
-import activecampaign from "./activecampaign.png";
-import afterpay from "./afterpay.png";
-import airwallex from "./airwallex.png";
-import amplitude from "./amplitude.png";
-import asana from "./asana.png";
-import fb from "./facebook.png";
-import insta from "./instagram.png";
-import twitter from "./twitter.png";
-import servicesImg from "./servicesImg.png";
-import helpingIndustriesImg from "./helpingIndustriesImg.png";
-import liquidWasteCollectionImg from "./liquidWasteCollectionImg.png";
-import recyclingServicesImg from "./recyclingServicesImg.png";
-import solidWasteCollectionImg from "./solidWasteCollectionImg.png";
-import tick from "./tick.png";
-import reviewStars from "./reviewStars.png";
-import reviewStars2 from "./reviewStars2.png";
-import reviewPerson from "./reviewPerson.png";
-import reviewPerson2 from "./reviewPerson2.png";
-import frame from "./frame.png";
-import aboutSectionImg from "./aboutSectionImg.png";
-import teamMember from "./teamMember.png";
-import teamBg from "./teamBg.png";
-import projectOne from "./project1.png";
-import projectTwo from "./project2.png";
-import projectThree from "./project3.png";
-import projectFour from "./project4.png";
-import contactusImg from "./contactusImg.png";
-import trashResponsibilityImg from "./trashResponsibilityImg.png";
-import efficientCollectionImg from "./efficientCollectionImg.png";
-import disposableMethodsImg from "./disposableMethodsImg.png";
-import inovativeSortingImg from "./inovativeSortingImg.png";
+import logo from "../assets/images/logo.png";
+import arrowUp from "../assets/images/arrowUp.png";
+import arrowDown from "../assets/images/arrowDown.png";
+import menu from "../assets/images/menu.svg";
+import close from "../assets/images/close.svg";
+import activecampaign from "../assets/images/activecampaign.png";
+import afterpay from "../assets/images/afterpay.png";
+import airwallex from "../assets/images/airwallex.png";
+import amplitude from "../assets/images/amplitude.png";
+import asana from "../assets/images/asana.png";
+import fb from "../assets/images/facebook.png";
+import insta from "../assets/images/instagram.png";
+import twitter from "../assets/images/twitter.png";
+import servicesImg from "../assets/images/servicesImg.png";
+import helpingIndustriesImg from "../assets/images/helpingIndustriesImg.png";
+import liquidWasteCollectionImg from "../assets/images/liquidWasteCollectionImg.png";
+import recyclingServicesImg from "../assets/images/recyclingServicesImg.png";
+import solidWasteCollectionImg from "../assets/images/solidWasteCollectionImg.png";
+import tick from "../assets/images/tick.png";
+import reviewStars from "../assets/images/reviewStars.png";
+import reviewStars2 from "../assets/images/reviewStars2.png";
+import reviewPerson from "../assets/images/reviewPerson.png";
+import reviewPerson2 from "../assets/images/reviewPerson2.png";
+import frame from "../assets/images/frame.png";
+import aboutSectionImg from "../assets/images/aboutSectionImg.png";
+import teamMember from "../assets/images/teamMember.png";
+import teamMember2 from "../assets/images/teamMember2.png";
+import teamMember3 from "../assets/images/teamMember3.png";
+import teamBg from "../assets/images/teamBg.png";
+import projectOne from "../assets/images/project1.png";
+import projectTwo from "../assets/images/project2.png";
+import projectThree from "../assets/images/project3.png";
+import projectFour from "../assets/images/project4.png";
+import contactusImg from "../assets/images/contactusImg.png";
+import trashResponsibilityImg from "../assets/images/trashResponsibilityImg.png";
+import efficientCollectionImg from "../assets/images/efficientCollectionImg.png";
+import disposableMethodsImg from "../assets/images/disposableMethodsImg.png";
+import inovativeSortingImg from "../assets/images/inovativeSortingImg.png";
+import wastecollectionImg from "../assets/images/wastecollectionImg.png";
+import reviewPerson4 from "../assets/images/reviewPerson4.png";
+import reviewPerson5 from "../assets/images/reviewPerson5.png";
+import reviewPerson3 from "../assets/images/reviewPerson3.png";
+import groceryReward from "../assets/images/grocery-reward.png";
+import cashReward from "../assets/images/cash-reward.png";
+import treeReward from "../assets/images/tree-reward.jpg";
+import voucherReward from "../assets/images/voucher-reward.png";
+import teamMember4 from "../assets/images/teamMember4.png";
+import teamMember5 from "../assets/images/teamMember5.png";
+import Organik from "../assets/images/Organik.png";
+import Anorganik from "../assets/images/Anorganik.png";
+import B3 from "../assets/images/B3.png";
+import ambilsampah from "../assets/images/ambil-sampah.png";
 
 export {
   logo,
+  wastecollectionImg,
   efficientCollectionImg,
   disposableMethodsImg,
   inovativeSortingImg,
+  reviewPerson3,
+  reviewPerson4,
+  reviewPerson5,
   contactusImg,
   projectOne,
   projectTwo,
+  teamMember2,
+  teamMember3,
+  teamMember4,
+  teamMember5,
   projectThree,
   projectFour,
   teamMember,
@@ -72,4 +96,12 @@ export {
   recyclingServicesImg,
   solidWasteCollectionImg,
   trashResponsibilityImg,
+  groceryReward,
+  cashReward,
+  treeReward,
+  voucherReward,
+  Organik,
+  Anorganik,
+  B3,
+  ambilsampah
 };

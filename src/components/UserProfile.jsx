@@ -1,50 +1,66 @@
 import React from "react";
+import Link from "next/link"; 
+import { FaBook } from "react-icons/fa";
+import { MdPinDrop } from "react-icons/md";
+import { FaTruckMoving } from "react-icons/fa6";
+import { FaCircleArrowDown } from "react-icons/fa6";
+import { FaCircleArrowUp } from "react-icons/fa6";
+import { MdCurrencyExchange } from "react-icons/md";
+import { FaBookmark } from "react-icons/fa";
+import { CgProfile } from "react-icons/cg";
+import { TbPigMoney } from "react-icons/tb";
+
 
 const UserProfile = () => {
   // Simulasi data kosong
   const user = {
     name: "Nosferatu",
-    activePoints: 900,
-    incomingPoints: 1000,
-    outgoingPoints: 100,
+    activePoints: 1000,
+    incomingPoints: 1300,
+    outgoingPoints: 300,
     articles: [], 
   };
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
       {/* Header */}
-      <div className="bg-gradient-to-b from-[#bf575a] to-[#7c1215] p-6 flex justify-between items-center text-white rounded-b-xl">
+      <div className="bg-gradient-to-b from-[#bf575a] to-[#7c1215] p-6 flex flew-wrap gap-2 sm:gap-4 justify-end justify-between items-center text-white rounded-b-xl">
         <div>
-          <p className="text-sm ml-4">Selamat Datang</p>
-          <h1 className="text-2xl font-bold ml-5">{user.name}</h1>
+          <p className="text-sm ml-2">Selamat Datang</p>
+          <h1 className="text-2xl font-bold ml-3">{user.name}</h1>
         </div>
         <div className="flex gap-4">
-          <button className="bg-white text-[#d93d41] px-4 py-2 rounded-full hover:bg-green-100 transition">Saved Address</button>
-          <button className="bg-white text-[#d93d41] px-4 py-2 rounded-full hover:bg-green-100 transition">Edit Profile</button>
-          <button className="bg-white text-[#d93d41] px-4 py-2 rounded-full hover:bg-green-100 transition">Log Out</button>
+          <Link href="/address">
+            <button className="bg-white text-[#d93d41] px-4 py-2 rounded-full hover:bg-green-100 transition flex items-center gap-2"><FaBookmark className="text-xl hidden xs:inline"/> Address</button>
+          </Link>
+          <button className="bg-white text-[#d93d41] px-4 py-2 rounded-full hover:bg-green-100 transition flex items-center gap-2"><CgProfile className="text-2xl hidden xs:inline"/>Edit</button>
+          {/* <button className="bg-white text-[#d93d41] px-4 py-2 rounded-full hover:bg-green-100 transition">Log Out</button> */}
         </div>
       </div>
 
       {/* Content */}
       <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Points Card */}
-        <div className="bg-gradient-to-r from-[#d93d41] to-[#7c1215] text-white rounded-xl p-6 shadow-lg flex flex-col justify-between">
-          <div>
-            <h2 className="text-xl font-semibold">Loyalty Points</h2>
+        <div className="bg-gradient-to-r from-[#d93d41] to-[#7c1215] text-white rounded-xl p-6 shadow-lg flex flex-col justify-between relative">
+          <div className="flex flex-col items-start">
+            <h2 className="text-xl font-semibold flex items-center gap-2"><TbPigMoney className="text-4xl text-[#00FF9C]"/>Loyalty Points</h2>
             <p className="mt-4 text-sm">Active Points</p>
             <p className="text-3xl font-bold">{user.activePoints} Points</p>
-            <button className="mt-4 bg-white text-[#d93d41] px-4 py-2 rounded-full hover:bg-green-100 transition">
-              Exchange Points
-            </button>
           </div>
+            <button className="absolute top-7 right-8 mt-4 bg-white text-[#d93d41] px-4 py-2 rounded-full hover:bg-green-100 transition w-fit">
+              <Link href="/redeem" className="flex item-center gap-2">
+              <MdCurrencyExchange className="text-2xl "/> 
+              <p className="hidden xs:inline">Redeem Points</p>
+              </Link>
+            </button>
           <div className="mt-6 flex justify-between text-sm">
             <div className="flex flex-col items-center">
-              <span>⬇</span>
+              <span><FaCircleArrowDown className="text-2xl" /></span>
               <p>Total Incoming Points</p>
               <p className="font-bold">{user.incomingPoints} Points</p>
             </div>
             <div className="flex flex-col items-center">
-              <span>➡</span>
+              <span><FaCircleArrowUp className="text-2xl" /></span>
               <p>Total Outgoing Points</p>
               <p className="font-bold">{user.outgoingPoints} Points</p>
             </div>
@@ -54,11 +70,33 @@ const UserProfile = () => {
         {/* Menu and Articles */}
         <div className="space-y-6">
           {/* Menu Shortcuts */}
-          <div className="bg-white rounded-xl p-6 shadow-md grid grid-cols-3 gap-4 text-center">
-            <div className="bg-[#bf575a] text-[#ffffff] rounded-lg py-4">Katalog Sampah</div>
-            <div className="bg-[#bf575a] text-[#ffffff] rounded-lg py-4">Drop Point</div>
-            <div className="bg-[#bf575a] text-[#ffffff] rounded-lg py-4">Pick Up</div>
+          <div className="p-4 grid grid-cols-3 gap-4 text-center max-w-xl mx-auto">
+            <Link href="/historyuser">
+            <div className="flex flex-col items-center justify-center bg-[#bf575a] w-20 sm:w-24 h-20 sm:h-24 rounded-lg py-2 mx-auto">
+              <div className="text-white">
+                <FaBook className="text-3xl sm:text-4xl" />
+              </div>
+              <span className="text-xs sm:text-sm mt-1 text-white">Katalog</span>
+            </div>
+            </Link>
+
+            <div className="flex flex-col items-center justify-center bg-[#bf575a] w-20 sm:w-24 h-20 sm:h-24 rounded-lg py-2 mx-auto">
+              <div className="text-white">
+                <MdPinDrop className="text-3xl sm:text-4xl" />
+              </div>
+              <span className="text-xs sm:text-sm mt-1 text-white">Drop Point</span>
+            </div>
+
+              <Link href="/pickup">
+            <div className="flex flex-col items-center justify-center bg-[#bf575a] w-20 sm:w-24 h-20 sm:h-24 rounded-lg py-2 mx-auto">
+              <div className="text-white">
+                <FaTruckMoving className="text-3xl sm:text-4xl" />
+              </div>
+              <span className="text-xs sm:text-sm mt-1 text-white">Pick Up</span>
+            </div>
+              </Link>
           </div>
+
 
           {/* Articles */}
           <div className="bg-white rounded-xl p-6 shadow-md">
