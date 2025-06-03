@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { groceryReward, cashReward, treeReward, voucherReward} from '../assets';
+import Image from 'next/image';
 
 const rewardOptions = [
   {
@@ -79,10 +80,9 @@ const RedeemSection = () => {
               onClick={() => handleSelectReward(reward)}
             >
               <div className="h-48 bg-gray-200">
-                {/* Replace with actual image when available */}
                 <div className="w-full h-full flex items-center justify-center text-gray-500">
                   {reward.image ? (
-                    <img src={reward.image} alt={reward.title} className="w-full h-full object-cover" />
+                    <Image img src={reward.image} alt={reward.title} className="w-full h-full object-cover" />
                   ) : (
                     <span>{reward.title} Image</span>
                   )}

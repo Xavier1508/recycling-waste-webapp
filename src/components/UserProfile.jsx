@@ -71,12 +71,14 @@ const UserProfile = () => {
         <div className="space-y-6">
           {/* Menu Shortcuts */}
           <div className="p-4 grid grid-cols-3 gap-4 text-center max-w-xl mx-auto">
+            <Link href="/historyuser">
             <div className="flex flex-col items-center justify-center bg-[#bf575a] w-20 sm:w-24 h-20 sm:h-24 rounded-lg py-2 mx-auto">
               <div className="text-white">
                 <FaBook className="text-3xl sm:text-4xl" />
               </div>
               <span className="text-xs sm:text-sm mt-1 text-white">Katalog</span>
             </div>
+            </Link>
 
             <div className="flex flex-col items-center justify-center bg-[#bf575a] w-20 sm:w-24 h-20 sm:h-24 rounded-lg py-2 mx-auto">
               <div className="text-white">

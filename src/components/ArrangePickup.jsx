@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { FaArrowAltCircleLeft } from "react-icons/fa";
 import {Organik, Anorganik, B3} from "@/assets";
+import Image from 'next/image';
 
 
 const ArrangePickup = () => {
@@ -77,7 +78,7 @@ const ArrangePickup = () => {
                     selectedTrashTypes.includes(type.value) ? "border-green-500" : "border-gray-200"
                 }`}
                 >
-                <img src={type.image} alt={type.label} className="h-24 mx-auto mb-2" />
+                <Image img src={type.image} alt={type.label} className="h-24 mx-auto mb-2" />
                 <p className="font-bold text-sm">{type.label}</p>
                 </div>
             ))}
