@@ -50,8 +50,10 @@ import Organik from "../assets/images/Organik.png";
 import Anorganik from "../assets/images/Anorganik.png";
 import B3 from "../assets/images/B3.png";
 import ambilsampah from "../assets/images/ambil-sampah.png";
+import profileIcon from "../assets/images/profileIcon.svg";
 
 export {
+  profileIcon,
   logo,
   wastecollectionImg,
   efficientCollectionImg,

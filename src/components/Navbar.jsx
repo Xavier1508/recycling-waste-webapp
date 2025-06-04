@@ -1,41 +1,69 @@
 import { useState, useEffect } from "react";
+// Pastikan path ini benar, sesuaikan jika perlu
 import { navVariants } from "../../utils/motion";
 import { close, logo, menu } from "@/assets";
+// Ganti dengan path ke file SVG Anda
+import ProfileIconSVG from "@/assets/images/profileIcon.svg"; // Misal nama file SVG Anda profileIcon.svg
 import Link from "next/link";
 import { navLinks } from "@/constants";
 import { motion } from "framer-motion";
-import Image from "next/image";
+import Image from "next/image"; // Tetap gunakan Image dari next/image untuk SVG jika Anda ingin optimasi Next.js
 import { useRouter } from "next/router";
-
 
 const Navbar = () => {
   const [toggle, setToggle] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userProfileData, setUserProfileData] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
-
       setIsSticky(scrollTop > 50);
     };
 
+    const checkAuthStatus = () => {
+      const token = localStorage.getItem("authToken");
+      const userDataString = localStorage.getItem("userData");
+      if (token && userDataString) {
+        try {
+          const userData = JSON.parse(userDataString);
+          setUserProfileData(userData);
+          setIsLoggedIn(true);
+        } catch (error) {
+          console.error("Gagal parse data pengguna dari localStorage:", error);
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("userData");
+          setIsLoggedIn(false);
+          setUserProfileData(null);
+        }
+      } else {
+        setIsLoggedIn(false);
+        setUserProfileData(null);
+      }
+    };
+
+    checkAuthStatus();
     window.addEventListener("scroll", handleScroll);
+    window.addEventListener("authChange", checkAuthStatus);
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("authChange", checkAuthStatus);
     };
-  }, []);
+  }, [router.pathname]);
 
   return (
     <nav
-      className={`w-full overflow-x-visible md:px-28 px-4 flex md:py-4 py-3 justify-center items-center absolute top-0 left-0 z-10  ${
+      className={`w-full overflow-x-visible md:px-28 px-4 flex md:py-4 py-3 justify-center items-center absolute top-0 left-0 z-10 ${
         isSticky ? "sticky-navbar" : ""
       }`}
     >
       <Link href="/">
         <Image
           src={logo}
-          alt="zmgt"
+          alt="Logo ZMGT"
           className="w-[100px] h-[90px] cursor-pointer mr-20"
         />
       </Link>
@@ -44,21 +72,46 @@ const Navbar = () => {
           <li key={nav.id} className={`font-poppins`}>
             <Link
               href={`${nav.id}`}
-              className={`font-poppins font-normal hover:text-dimWhite transition-colors cursor-pointer text-[16px]
-          ${index === navLinks.length - 1 ? "mr-0" : "mr-10"} text-white`}
+              className={`font-poppins font-normal hover:text-dimWhite transition-colors cursor-pointer text-[16px] ${
+                index === navLinks.length - 1 ? "mr-0" : "mr-10"
+              } text-white`}
             >
               {nav.title}
             </Link>
           </li>
         ))}
       </ul>
-      <div className="space-x-4 md:flex hidden">
-        <Link
-          href="/login" 
-          className="button flex-shrink-0 transition-colors text-white py-3 px-6 font-medium text-[18px] font-poppins"
->
-          Login
-        </Link>
+
+      {/* Desktop Authentication Section - Diubah */}
+      <div className="md:flex hidden items-center">
+        {isLoggedIn && userProfileData ? (
+          // Tombol merah yang berisi teks sapaan dan ikon profil
+          <div
+            className="button flex-shrink-0 transition-colors text-white py-3 px-4 font-medium text-[18px] font-poppins flex items-center space-x-3 rounded-full"
+            // Tidak perlu onClick di sini karena Link di dalam ikon akan menangani navigasi
+            // Jika Anda ingin seluruh area ini bisa diklik, bungkus dengan Link dan atur style internal
+          >
+            <span>Hello, {userProfileData.first_name}!</span>
+            <Link href="/userprofile" passHref>
+              <div className="cursor-pointer rounded-full p-1 hover:bg-white/20 transition-colors"> {/* Tambahkan padding dan hover effect */}
+                <Image
+                  src={ProfileIconSVG} // Gunakan variabel import SVG
+                  alt="Profil Pengguna"
+                  width={35} // Sesuaikan ukuran SVG jika perlu
+                  height={35} // Sesuaikan ukuran SVG jika perlu
+                  // className="filter invert" // Contoh jika SVG Anda hitam dan ingin jadi putih di background merah
+                />
+              </div>
+            </Link>
+          </div>
+        ) : (
+          <Link
+            href="/login"
+            className="button flex-shrink-0 transition-colors text-white py-3 px-6 font-medium text-[18px] font-poppins"
+          >
+            Login
+          </Link>
+        )}
       </div>
 
       <div className="md:hidden flex flex-1 justify-end items-center">
@@ -77,19 +130,47 @@ const Navbar = () => {
             {navLinks.map((nav, index) => (
               <li
                 key={nav.id}
-                className={`font-poppins font-normal py-1 px-4 cursor-pointer transition-colors hover:bg-white/10 rounded-md text-[16px]
-        ${index === navLinks.length - 1 ? "mb-0" : "mb-4"} text-white`}
+                className={`font-poppins font-normal py-1 px-4 cursor-pointer transition-colors hover:bg-white/10 rounded-md text-[16px] ${
+                  index === navLinks.length - 1 ? "mb-0" : "mb-4"
+                } text-white`}
+                onClick={() => setToggle(false)}
               >
                 <Link href={`${nav.id}`}>{nav.title}</Link>
               </li>
             ))}
-            <div className="items-center mt-8">
-              <Link
-               href="/login" 
-               className="button flex-shrink-0 transition-colors text-white py-3 px-6 font-medium text-[18px] font-poppins"
-             >
-                Login
-              </Link>
+
+            <div className="items-center mt-8 w-full">
+              {isLoggedIn && userProfileData ? (
+                <>
+                  <li className="font-poppins font-normal py-2 px-4 text-white w-full text-center mb-2 cursor-default">
+                    Hallo, {userProfileData.first_name}!
+                  </li>
+                  <li
+                    className="font-poppins font-normal py-2 px-4 cursor-pointer transition-colors hover:bg-white/10 rounded-md text-[16px] mb-4 text-white w-full text-center flex items-center justify-center space-x-2"
+                    onClick={() => {
+                      router.push('/userprofile');
+                      setToggle(false);
+                    }}
+                  >
+                     <Image
+                        src={ProfileIconSVG}
+                        alt="Profil"
+                        width={20}
+                        height={20}
+                        // className="filter invert" // Jika perlu
+                      />
+                    <span>Profil Saya</span>
+                  </li>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  className="button flex-shrink-0 transition-colors text-white py-3 px-6 font-medium text-[18px] font-poppins w-full text-center block"
+                  onClick={() => setToggle(false)}
+                >
+                  Login
+                </Link>
+              )}
             </div>
           </ul>
         </div>

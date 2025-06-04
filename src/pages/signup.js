@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { PulseLoader } from "react-spinners";
-import SignUp from "@/components/SignUp";
+import SignUp from "@/components/SignUp"; // Menggunakan komponen SignUp.jsx
 
-const signup = () => {
+const SignupPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1000);
+    const timer = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -20,19 +20,17 @@ const signup = () => {
       {loading ? (
         <div className="sweet-loading bg-white flex justify-center items-center h-screen">
           <PulseLoader
-            color="#fff"
+            color="#D93D41"
             loading={loading}
             size={15}
-            css={override}
+            cssOverride={{ display: "block", margin: "0 auto" }}
           />
         </div>
       ) : (
-        <>
-          <SignUp />  
-        </>
+        <SignUp /> // Komponen SignUp akan menangani UI dan logika form
       )}
     </div>
   );
 };
 
-export default signup;
+export default SignupPage;

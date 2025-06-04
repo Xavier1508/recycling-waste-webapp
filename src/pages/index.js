@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import styles from "@/style";
 import { PropagateLoader } from "react-spinners";
 
+
 export default function Home() {
   const [loading, setLoading] = useState(true);
 
