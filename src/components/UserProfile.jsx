@@ -1,14 +1,58 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { authAPI, userAPI } from "@/services/api";
-import { FaBook, FaBookmark, FaTruckMoving, FaRegSadTear, FaUserCircle, FaCamera, FaEdit, FaSave, FaTimes, FaKey } from "react-icons/fa";
+import { authAPI, userAPI, addressAPI } from "@/services/api"; // <-- Tambahkan addressAPI
+import { FaBook, FaBookmark, FaTruckMoving, FaRegSadTear, FaUserCircle, FaCamera, FaMapMarkedAlt, FaEdit, FaSave, FaTimes, FaKey } from "react-icons/fa";
 import { MdPinDrop, MdCurrencyExchange, MdLogout, MdTrendingUp, MdTrendingDown, MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { TbPigMoney } from "react-icons/tb";
 import { PulseLoader } from "react-spinners";
+import { usePickup } from "@/context/PickupContext";
+
+// --- KOMPONEN TOMBOL PETA YANG CERDAS ---
+const UserMapViewButton = ({ activePickup, primaryAddress }) => {
+    // Skenario 1: Ada penjemputan aktif
+    if (activePickup) {
+        return (
+            <Link href={`/track/${activePickup.pickup_id}`} legacyBehavior>
+                <a className="block hover:scale-105 transition-transform group">
+                    <div className="flex flex-col items-center justify-center bg-green-100 border border-green-300 group-hover:bg-green-200 w-full h-24 rounded-lg py-2 shadow-md transition-colors">
+                        <FaTruckMoving className="text-3xl sm:text-4xl text-green-600" />
+                        <span className="text-xs sm:text-sm mt-1.5 text-green-700 font-bold">Lacak Pesanan</span>
+                    </div>
+                </a>
+            </Link>
+        );
+    }
+
+    // Skenario 2: Tidak ada penjemputan, TAPI punya alamat utama
+    if (primaryAddress) {
+        return (
+            <Link href={{ pathname: '/maps', query: { lat: primaryAddress.latitude, lng: primaryAddress.longitude, avatar: primaryAddress.user_avatar } }} legacyBehavior>
+                 <a className="block hover:scale-105 transition-transform group">
+                  <div className="flex flex-col items-center justify-center bg-[#f0e2e2] group-hover:bg-[#e2bbbb] w-full h-24 rounded-lg py-2 shadow-md transition-colors">
+                    <FaMapMarkedAlt className="text-3xl sm:text-4xl text-[#7c1215]" />
+                    <span className="text-xs sm:text-sm mt-1.5 text-[#7c1215] font-medium">Peta</span>
+                  </div>
+                </a>
+            </Link>
+        );
+    }
+
+    // Skenario 3: Default, tidak ada penjemputan & alamat (tombol non-aktif)
+    return (
+        <div className="block cursor-not-allowed opacity-60 group">
+            <div className="flex flex-col items-center justify-center bg-gray-200 w-full h-24 rounded-lg py-2 shadow-md">
+                <FaMapMarkedAlt className="text-3xl sm:text-4xl text-gray-500" />
+                <span className="text-xs sm:text-sm mt-1.5 text-gray-600 font-medium">Peta</span>
+            </div>
+        </div>
+    );
+};
 
 const UserProfile = () => {
   const [userData, setUserData] = useState(null);
+  const [activeUserPickup, setActiveUserPickup] = useState(null); // <-- State baru
+  const [primaryAddress, setPrimaryAddress] = useState(null); // <-- State baru
   const [userPoints, setUserPoints] = useState({
     current_points: 0,
     total_points_earned: 0,
@@ -45,9 +89,30 @@ const UserProfile = () => {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
-
+  
+  
+  const { activePickup, clearActivePickup } = usePickup(); // Kita gunakan juga dari context
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001"; // Sesuaikan dengan URL backend Anda
+
+  useEffect(() => {
+        // PERBAIKAN: Gunakan state dari context jika ada, jika tidak, fetch dari API
+        if (activePickup) {
+            setActiveUserPickup(activePickup);
+        } else {
+            const fetchActivePickup = async () => {
+                try {
+                    const res = await userAPI.getActivePickup();
+                    if (res.data) {
+                        setActiveUserPickup(res.data);
+                    }
+                } catch (err) {
+                    console.error("Gagal cek penjemputan aktif:", err);
+                }
+            };
+            fetchActivePickup();
+        }
+    }, [activePickup]);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -64,11 +129,13 @@ const UserProfile = () => {
         const profilePromise = userAPI.getProfile();
         const pointsSummaryPromise = userAPI.getPoints();
         const recentHistoryPromise = userAPI.getRecentPointsHistory();
+        const addressPromise = addressAPI.getAll(); // <-- Panggil API alamat
 
-        const [profileResponse, pointsSummaryResponse, recentHistoryResponse] = await Promise.all([
+        const [profileResponse, pointsSummaryResponse, recentHistoryResponse, addressResponse] = await Promise.all([
           profilePromise,
           pointsSummaryPromise,
-          recentHistoryPromise
+          recentHistoryPromise,
+          addressPromise
         ]);
 
         setUserData(profileResponse.data);
@@ -82,6 +149,15 @@ const UserProfile = () => {
         }
         localStorage.setItem("userData", JSON.stringify(profileResponse.data));
 
+        // Cari dan set alamat utama
+        const allAddresses = addressResponse.data || [];
+        const mainAddress = allAddresses.find(addr => addr.is_active) || allAddresses[0];
+        if (mainAddress) {
+            setPrimaryAddress({
+                ...mainAddress,
+                user_avatar: profileResponse.data.profile_picture_url // Sisipkan url avatar
+            });
+        }
 
         setUserPoints({
           current_points: pointsSummaryResponse.data.current_points || 0,
@@ -114,6 +190,9 @@ const UserProfile = () => {
         // Tidak perlu menampilkan error ke user jika logout API gagal, yang penting token di client dihapus
       }
     }
+
+    clearActivePickup();
+    
     localStorage.removeItem("authToken");
     localStorage.removeItem("userData");
     window.dispatchEvent(new CustomEvent("authChange")); // Untuk update UI lain jika ada
@@ -194,7 +273,7 @@ const UserProfile = () => {
         setIsLoading(true); // Atau state loading spesifik
         const response = await userAPI.uploadAvatar(formData);
         setUserData(prev => ({ ...prev, profile_picture_url: response.data.profile_picture_url }));
-        // Update preview dengan URL dari server agar konsisten
+
         setProfilePicturePreview(`${API_BASE_URL}${response.data.profile_picture_url}`);
         localStorage.setItem("userData", JSON.stringify({ ...userData, profile_picture_url: response.data.profile_picture_url }));
         setSuccessMessage(response.data.message || "Foto profil berhasil diunggah.");
@@ -258,7 +337,7 @@ const UserProfile = () => {
     );
   }
 
-  if (error && !userData && !isEditMode) { // Tampilkan error utama jika fetch awal gagal
+  if (error && !userData && !isEditMode) {
     return (
       <div className="flex flex-col justify-center items-center min-h-screen pt-20 bg-gray-100 text-center px-4">
         <FaRegSadTear className="text-6xl text-gray-400 mx-auto mb-5" />
@@ -319,7 +398,6 @@ const UserProfile = () => {
       <div className="p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 ">
         {/* Kolom Kiri: Poin Loyalitas */}
         <div className="lg:col-span-1 bg-gradient-to-br from-[#d93d41] to-[#b92d31] text-white rounded-xl p-6 shadow-xl flex flex-col justify-between relative">
-            {/* ... (Konten Poin Loyalitas tidak berubah signifikan, bisa disesuaikan jika perlu) ... */}
             <div className="flex flex-col items-start mb-6">
               <div className="flex items-center gap-3 mb-1">
                   <TbPigMoney className="text-5xl text-yellow-300" />
@@ -365,20 +443,24 @@ const UserProfile = () => {
         {/* Kolom Tengah: Navigasi Cepat & Artikel */}
         <div className="lg:col-span-1 space-y-6">
             <div className="p-4 grid grid-cols-3 gap-3 text-center bg-white rounded-xl shadow-lg">
-              {[
-                { href: "/historyuser", icon: FaBook, label: "Riwayat" },
-                { href: "/services#drop-point", icon: MdPinDrop, label: "Drop Point" },
-                { href: "/pickup", icon: FaTruckMoving, label: "Pick Up" },
-              ].map(item => (
-                <Link key={item.label} href={item.href} className="block hover:scale-105 transition-transform group">
+              {/* Tombol Riwayat */}
+              <Link href="/historyuser" className="block hover:scale-105 transition-transform group">
                   <div className="flex flex-col items-center justify-center bg-[#f0e2e2] group-hover:bg-[#e2bbbb] w-full h-24 rounded-lg py-2 shadow-md transition-colors">
-                    <item.icon className="text-3xl sm:text-4xl text-[#7c1215] group-hover:text-[#5a0e10] transition-colors" />
-                    <span className="text-xs sm:text-sm mt-1.5 text-[#7c1215] group-hover:text-[#5a0e10] font-medium transition-colors">
-                      {item.label}
-                    </span>
+                      <FaBook className="text-3xl sm:text-4xl text-[#7c1215]" />
+                      <span className="text-xs sm:text-sm mt-1.5 text-[#7c1215] font-medium">Riwayat</span>
                   </div>
-                </Link>
-              ))}
+              </Link>
+
+              {/* --- Tombol Peta Cerdas --- */}
+              <UserMapViewButton activePickup={activeUserPickup} primaryAddress={primaryAddress} />
+              
+              {/* Tombol Pick Up */}
+              <Link href="/pickup" className="block hover:scale-105 transition-transform group">
+                  <div className="flex flex-col items-center justify-center bg-[#f0e2e2] group-hover:bg-[#e2bbbb] w-full h-24 rounded-lg py-2 shadow-md transition-colors">
+                      <FaTruckMoving className="text-3xl sm:text-4xl text-[#7c1215]" />
+                      <span className="text-xs sm:text-sm mt-1.5 text-[#7c1215] font-medium">Pick Up</span>
+                  </div>
+              </Link>
             </div>
             <div className="bg-white rounded-xl p-6 shadow-lg">
               <h3 className="text-lg font-semibold mb-4 text-gray-800">

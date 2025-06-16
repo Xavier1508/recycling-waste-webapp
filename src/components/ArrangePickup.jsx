@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { FaArrowAltCircleLeft, FaCamera, FaRegSadTear, FaPlusCircle } from "react-icons/fa";
-import { Organik, Anorganik, B3 } from "@/assets"; 
+import { FaArrowAltCircleLeft, FaCamera, FaRegSadTear, FaPlusCircle, FaWeightHanging } from "react-icons/fa";
+import { Organik, Anorganik, B3, Kertas, Ewate, Medis, Bangunan } from "@/assets"; 
 import Image from 'next/image';
-import { addressAPI, pickupAPI } from "@/services/api"; 
+import { addressAPI, pickupAPI, catalogAPI } from "@/services/api"; 
 import AuthPromptModal from './AuthPromptModal'; 
 import { useRouter } from "next/router";
 import { PulseLoader } from "react-spinners"; 
+import { usePickup } from "@/context/PickupContext";
 
 const AddressSelectionModal = ({ isOpen, onClose, addresses, onSelectAddress, currentSelectedAddressId }) => {
   if (!isOpen) return null;
@@ -43,11 +44,7 @@ const AddressSelectionModal = ({ isOpen, onClose, addresses, onSelectAddress, cu
             >
               <p className="font-semibold text-gray-700">{addr.address_text}</p>
               <p className="text-sm text-gray-500">{addr.city}, {addr.postal_code}</p>
-              {/* Logika ini memastikan hanya span "Alamat Utama" yang muncul jika addr.is_active bernilai true (atau 1).
-                Jika addr.is_active bernilai false (atau 0), tidak ada yang dirender dari baris ini,
-                sehingga angka "0" tidak akan muncul.
-              */}
-              {!!addr.is_active && ( // Menggunakan !! untuk konversi eksplisit ke boolean jika is_active berupa angka 0 atau 1
+              {!!addr.is_active && (
                 <span className="mt-1 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
                   Alamat Utama
                 </span>
@@ -66,65 +63,74 @@ const AddressSelectionModal = ({ isOpen, onClose, addresses, onSelectAddress, cu
   );
 };
 
-
 const ArrangePickup = () => {
+  const [trashCategories, setTrashCategories] = useState([]);
   const [selectedTrashTypes, setSelectedTrashTypes] = useState([]);
   const [photo, setPhoto] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [pickupTime, setPickupTime] = useState("");
   const [pickupDate, setPickupDate] = useState("");
   const [notes, setNotes] = useState("");
+  const [estimatedWeight, setEstimatedWeight] = useState("");
 
   const [pickupAddress, setPickupAddress] = useState(null);
   const [allAddresses, setAllAddresses] = useState([]);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
-  const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(""); 
   const [addressError, setAddressError] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const router = useRouter();
 
-  const trashTypeOptions = [
-    { category_id: 1, category_name: "ORGANIC", category_code: "ORG", image: Organik },
-    { category_id: 2, category_name: "ANORGANIC", category_code: "ANORG", image: Anorganik },
-    { category_id: 3, category_name: "B3", category_code: "B3", image: B3 },
-  ];
+  // Gunakan context untuk pickup management
+  const { startNewPickup } = usePickup();
 
-  const fetchUserAddresses = useCallback(async () => {
-    setIsLoadingAddresses(true);
-    setAddressError("");
-    try {
-      const response = await addressAPI.getAll(); 
-      const fetchedAddresses = response.data || [];
-      setAllAddresses(fetchedAddresses);
-      if (fetchedAddresses.length > 0) {
-        const defaultAddress = fetchedAddresses.find(addr => !!addr.is_active) || fetchedAddresses[0];
-        setPickupAddress(defaultAddress);
-      } else {
-        setPickupAddress(null);
-      }
-    } catch (err) {
-      console.error("Gagal mengambil alamat pengguna:", err.response?.data?.error || err.message);
-      setAddressError("Gagal memuat alamat Anda. Pastikan Anda sudah menambahkan alamat atau coba lagi nanti.");
-    } finally {
-      setIsLoadingAddresses(false);
-    }
-  }, []); 
+  // Mapping kode kategori ke gambar
+  const categoryImages = { 
+    ORG: Organik, 
+    ANORG: Anorganik, 
+    B3, 
+    PAPER: Kertas, 
+    EWASTE: Ewate, 
+    MEDICAL: Medis, 
+    CONSTRUCTION: Bangunan 
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
-    if (token) {
-      setIsLoggedIn(true);
-      fetchUserAddresses();
-    } else {
-      setIsLoggedIn(false);
-      setIsAuthModalOpen(true); 
-      setIsLoadingAddresses(false); 
+    if (!token) {
+        setIsAuthModalOpen(true);
+        setIsLoading(false);
+        return;
     }
-  }, [fetchUserAddresses]); 
+
+    const initialize = async () => {
+        try {
+            const [addressRes, categoryRes] = await Promise.all([
+                addressAPI.getAll(),
+                pickupAPI.getCategories()
+            ]);
+            
+            const fetchedAddresses = addressRes.data || [];
+            setAllAddresses(fetchedAddresses);
+            if (fetchedAddresses.length > 0) {
+                setPickupAddress(fetchedAddresses.find(addr => !!addr.is_active) || fetchedAddresses[0]);
+            }
+            
+            setTrashCategories(categoryRes.data || []);
+            
+        } catch (err) {
+            console.error("Gagal memuat data awal:", err);
+            setError("Gagal memuat data. Coba muat ulang halaman.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    initialize();
+  }, []); 
 
   const toggleTrashType = (typeCode) => {
     setSelectedTrashTypes((prev) =>
@@ -146,10 +152,6 @@ const ArrangePickup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isLoggedIn) {
-      setIsAuthModalOpen(true);
-      return;
-    }
     if (!pickupAddress) {
       setAddressError("Alamat penjemputan wajib dipilih. Silakan pilih atau tambahkan alamat baru.");
       setIsAddressModalOpen(true); 
@@ -163,6 +165,10 @@ const ArrangePickup = () => {
       setError("Tentukan tanggal dan waktu penjemputan.");
       return;
     }
+    if (!estimatedWeight) {
+      setError("Estimasi berat sampah wajib diisi.");
+      return;
+    }
 
     setIsSubmitting(true);
     setError("");
@@ -170,30 +176,39 @@ const ArrangePickup = () => {
 
     const formData = new FormData();
     formData.append('address_id', pickupAddress.address_id);
-    formData.append('pickup_address', `${pickupAddress.address_text}, ${pickupAddress.city}, ${pickupAddress.postal_code}`);
     formData.append('pickup_date', pickupDate);
-    formData.append('pickup_time', `${pickupDate} ${pickupTime}`); 
-    selectedTrashTypes.forEach(type => formData.append('trash_types[]', type));
-    if (photo) {
-      formData.append('trash_photo', photo);
-    }
-    if (notes) {
-        formData.append('notes', notes);
-    }
+    formData.append('pickup_time', pickupTime);
+    formData.append('trash_types', JSON.stringify(selectedTrashTypes));
+    formData.append('estimated_weight_kg', estimatedWeight);
+    if (photo) formData.append('trash_photo', photo);
+    if (notes) formData.append('notes', notes);
 
     try {
-      await pickupAPI.createRequest(formData); 
-      alert("Permintaan penjemputan berhasil dibuat!");
-      router.push("/historyuser");
+      const response = await pickupAPI.createRequest(formData);
+      
+      // Panggil fungsi dari context untuk memulai proses pickup
+      startNewPickup(response.data.pickup_id);
+      
+      // Beri notifikasi dan reset form, TANPA redirect
+      alert("Permintaan penjemputan berhasil dibuat! Status pesanan Anda ada di banner bawah.");
+      
+      // Reset form setelah berhasil
+      setSelectedTrashTypes([]);
+      setPhoto(null);
+      setPhotoPreview(null);
+      setPickupTime("");
+      setPickupDate("");
+      setNotes("");
+      setEstimatedWeight("");
     } catch (err) {
-      console.error("Gagal membuat permintaan penjemputan:", err.response?.data?.error || err.message);
-      setError(err.response?.data?.error || "Terjadi kesalahan saat mengirim permintaan. Coba lagi.");
+      console.error("Gagal membuat permintaan:", err);
+      setError(err.response?.data?.error || "Terjadi kesalahan saat mengirim permintaan.");
     } finally {
       setIsSubmitting(false);
     }
   };
   
-  if (!isLoggedIn && !isAuthModalOpen && isLoadingAddresses) { 
+  if (isLoading) { 
       return (
         <div className="flex justify-center items-center min-h-screen">
             <PulseLoader color="#D93D41" size={15} />
@@ -203,7 +218,7 @@ const ArrangePickup = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 py-8 sm:py-10">
-      <AuthPromptModal isOpen={isAuthModalOpen} onClose={() => {setIsAuthModalOpen(false); if(!isLoggedIn) router.push('/');}} />
+      <AuthPromptModal isOpen={isAuthModalOpen} onClose={() => {setIsAuthModalOpen(false); if(!localStorage.getItem('authToken')) router.push('/');}} />
       <AddressSelectionModal
         isOpen={isAddressModalOpen}
         onClose={() => setIsAddressModalOpen(false)}
@@ -230,36 +245,34 @@ const ArrangePickup = () => {
           <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg mb-5">
             <div className="flex justify-between items-center mb-1">
               <h3 className="font-semibold text-gray-700">Alamat Penjemputan</h3>
-              {isLoggedIn && (
-                <button
-                  type="button"
-                  onClick={() => setIsAddressModalOpen(true)}
-                  className="text-[#d93d41] text-sm font-medium hover:underline disabled:text-gray-400 disabled:no-underline"
-                  disabled={isLoadingAddresses} 
-                >
-                  {isLoadingAddresses ? "Memuat..." : (allAddresses.length === 0 ? "Tambah Alamat" : "Ganti Alamat")}
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => setIsAddressModalOpen(true)}
+                className="text-[#d93d41] text-sm font-medium hover:underline disabled:text-gray-400 disabled:no-underline"
+                disabled={isLoading} 
+              >
+                {isLoading ? "Memuat..." : (allAddresses.length === 0 ? "Tambah Alamat" : "Ganti Alamat")}
+              </button>
             </div>
-            {isLoadingAddresses && (
+            {isLoading && (
                 <div className="flex items-center text-sm text-gray-500">
                     <PulseLoader color="#7c1215" size={6} className="mr-2"/> Memuat alamat Anda...
                 </div>
             )}
-            {!isLoadingAddresses && addressError && (
+            {!isLoading && addressError && (
                 <p className="text-sm text-red-500 bg-red-50 p-2 rounded-md">{addressError}</p>
             )}
-            {!isLoadingAddresses && !addressError && isLoggedIn && pickupAddress && (
+            {!isLoading && !addressError && pickupAddress && (
               <div>
                 <p className="text-sm text-gray-700 leading-tight font-medium">{pickupAddress.address_text}</p>
                 <p className="text-xs text-gray-500 leading-tight">{pickupAddress.city}, {pickupAddress.postal_code}</p>
                 {!!pickupAddress.is_active && <span className="text-xs text-green-600 font-semibold">(Alamat Utama)</span>}
               </div>
             )}
-            {!isLoadingAddresses && !addressError && isLoggedIn && !pickupAddress && allAddresses.length > 0 && (
+            {!isLoading && !addressError && !pickupAddress && allAddresses.length > 0 && (
                  <p className="text-sm text-gray-500">Pilih alamat dari daftar.</p>
             )}
-            {!isLoadingAddresses && !addressError && isLoggedIn && allAddresses.length === 0 && (
+            {!isLoading && !addressError && allAddresses.length === 0 && (
                 <div className="text-center py-3">
                     <FaRegSadTear className="text-3xl text-gray-400 mx-auto mb-2" />
                     <p className="text-sm text-gray-500 mb-2">Anda belum memiliki alamat tersimpan.</p>
@@ -274,8 +287,8 @@ const ArrangePickup = () => {
 
           <div className="mb-5">
             <h3 className="font-semibold text-gray-700 mb-2">Jenis Sampah <span className="text-xs text-gray-500">(Pilih satu atau lebih)</span></h3>
-            <div className="grid grid-cols-3 gap-3">
-              {trashTypeOptions.map((type) => (
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+              {trashCategories.map((type) => (
                 <div
                   key={type.category_code}
                   onClick={() => toggleTrashType(type.category_code)}
@@ -283,11 +296,27 @@ const ArrangePickup = () => {
                     selectedTrashTypes.includes(type.category_code) ? "border-[#d93d41] ring-2 ring-[#d93d41] bg-red-50" : "border-gray-300 hover:border-gray-400"
                   }`}
                 >
-                  <Image src={type.image} alt={type.category_name} width={60} height={60} className="mx-auto mb-1" />
+                  <Image src={categoryImages[type.category_code] || Anorganik} alt={type.category_name} width={60} height={60} className="mx-auto mb-1" />
                   <p className="font-medium text-xs sm:text-sm text-gray-700">{type.category_name}</p>
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="mb-5">
+            <label htmlFor="estimatedWeight" className="font-semibold text-gray-700 mb-2 flex items-center gap-2">
+              <FaWeightHanging /> Estimasi Berat (kg)
+            </label>
+            <input
+                id="estimatedWeight" 
+                type="number" 
+                step="0.1"
+                placeholder="Contoh: 5.5"
+                value={estimatedWeight}
+                onChange={(e) => setEstimatedWeight(e.target.value)}
+                className="w-full p-2.5 border border-gray-300 rounded-md focus:ring-[#d93d41] focus:border-[#d93d41] sm:text-sm"
+                required
+            />
           </div>
 
           <div className="mb-5">
@@ -325,7 +354,8 @@ const ArrangePickup = () => {
               />
             </div>
           </div>
-           <div className="mb-6">
+
+          <div className="mb-6">
             <h3 className="font-semibold text-gray-700 mb-2">Catatan (Opsional)</h3>
             <textarea
                 name="notes"
@@ -335,11 +365,11 @@ const ArrangePickup = () => {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
             />
-           </div>
+          </div>
 
           <button
             type="submit"
-            disabled={isSubmitting || isLoadingAddresses || !isLoggedIn}
+            disabled={isSubmitting || isLoading}
             className="w-full bg-[#d93d41] text-white font-semibold py-3 px-4 rounded-full hover:bg-[#b92d31] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#d93d41] disabled:opacity-60 flex items-center justify-center"
           >
             {isSubmitting ? <PulseLoader size={8} color="#fff" /> : "Atur Sekarang"}
