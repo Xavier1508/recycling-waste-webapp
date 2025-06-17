@@ -228,10 +228,6 @@ Contributions are welcome. Please follow standard open-source practices.
 4.  **Push** to the branch (`git push origin feature/YourFeature`).
 5.  Open a **Pull Request**.
 
-## **License**
-
-This project is licensed under the **MIT License**. See the `LICENSE` file for more details.
-
 ## 📄 **License**
 
 This project is licensed under the [MIT License](https://www.google.com/search?q=LICENSE). You are free to use, modify, and distribute this code.
