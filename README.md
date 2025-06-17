@@ -231,3 +231,9 @@ Contributions are welcome. Please follow standard open-source practices.
 ## 📄 **License**
 
 This project is licensed under the [MIT License](https://www.google.com/search?q=LICENSE). You are free to use, modify, and distribute this code.
+
+## **Acknowledgements**
+
+This project was originally forked from murtazaghulam99 (https://github.com/murtazaghulam99/recycling-waste-webapp). While the initial project provided the foundational landing page, this version has been significantly expanded with a full backend, database integration, real-time features, a user authentication system, and a complete rewrite of the application logic to build the full-stack **Trash Trade** ecosystem.
+
+We are grateful to the original creator for providing the initial spark for this project.
