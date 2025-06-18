@@ -61,7 +61,7 @@ const OurLocaton = () => {
           height="350"
           loading="lazy"
           className="rounded-[32px] h-[280px] md:h-[350px]"
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3866.7649960349495!2dYOUR_LONGITUDE!3dYOUR_LATITUDE!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3AYOUR_PLACE!2sYOUR_PLACE_NAME!5e0!3m2!1sen!2sus!4vYOUR_MAP_ID"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3866.7649960349495!2d123.580123!3d-10.164123!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3ALasiana!2sKupang!5e0!3m2!1sen!2sus!4vYOUR_MAP_ID"
         ></iframe>
       </motion.div>
     </motion.div>

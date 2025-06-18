@@ -42,16 +42,12 @@ export const navLinks = [
     title: "About Us",
   },
   {
-    id: "/redeem",  // Add new redeem route
+    id: "/redeem",
     title: "Redeem",
   },
   {
     id: "/contactus",
     title: "Contact Us",
-  },
-  {
-    id: "/userprofile",
-    title: "Profile",
   },
 ];
 

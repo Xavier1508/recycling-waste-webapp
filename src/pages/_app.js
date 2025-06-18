@@ -1,3 +1,5 @@
+import { PickupProvider } from '@/context/PickupContext';
+import ActivePickupBanner from '@/components/ActivePickupBanner';
 import "@/styles/index.css";
 import { Poppins } from "next/font/google";
 
@@ -9,8 +11,13 @@ const poppins = Poppins({
 
 export default function App({ Component, pageProps }) {
   return (
-    <main className={`${poppins.variable} font-poppins`}>
-      <Component {...pageProps} />
-    </main>
+    // MEMBUNGKUS SELURUH APLIKASI DENGAN PROVIDER
+    <PickupProvider>
+      <main className={`${poppins.variable} font-poppins`}>
+        <Component {...pageProps} />
+        {/* Banner ini akan kita ubah nanti, untuk sekarang biarkan */}
+        <ActivePickupBanner />
+      </main>
+    </PickupProvider>
   );
 }

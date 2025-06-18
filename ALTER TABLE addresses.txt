@@ -1,0 +1,781 @@
+-- Perintah ini akan menambahkan kolom 'catalog_id' ke dalam tabel point_redemptions.
+-- Kali ini tanpa klausa 'AFTER' agar lebih aman dan pasti berhasil.
+ALTER TABLE `point_redemptions` 
+ADD COLUMN `catalog_id` INT(11) NULL DEFAULT NULL COMMENT 'ID item dari tabel katalog';
+
+-- Perintah ini akan menambahkan relasi (Foreign Key) antara tabel penukaran dan tabel katalog.
+-- Ini penting untuk menjaga data tetap konsisten.
+ALTER TABLE `point_redemptions` 
+ADD CONSTRAINT `fk_redemption_catalog` 
+FOREIGN KEY (`catalog_id`) REFERENCES `catalog_items` (`catalog_id`) ON DELETE SET NULL;
+
+DELIMITER $$
+
+-- Pertama, kita hapus prosedur lama untuk memastikan tidak ada konflik.
+DROP PROCEDURE IF EXISTS `CalculatePickupPoints`$$
+
+-- Kemudian, kita buat prosedur baru dengan logika yang sudah diperbaiki.
+CREATE DEFINER=`root`@`localhost` PROCEDURE `CalculatePickupPoints` (IN `pickup_id_param` INT)
+BEGIN
+    -- Siapkan variabel untuk menampung hasil perhitungan.
+    DECLARE total_points_calculated INT DEFAULT 0;
+    DECLARE total_weight_calculated DECIMAL(10, 2) DEFAULT 0.00;
+
+    -- Langkah 1: Hitung total poin dan total berat dari semua item untuk pickup_id ini.
+    -- Ini adalah LOGIKA INTI yang benar: (berat item * poin per kg dari kategori)
+    SELECT 
+        -- Hitung total poin: Penjumlahan dari (berat item * poin per kg dari kategorinya)
+        -- COALESCE digunakan untuk memastikan hasilnya 0 jika tidak ada item sama sekali.
+        COALESCE(SUM(ti.weight_kg * tc.points_per_kg), 0),
+        
+        -- Hitung total berat: Penjumlahan dari semua berat item
+        COALESCE(SUM(ti.weight_kg), 0)
+    INTO 
+        -- Simpan hasil perhitungan ke dalam variabel yang sudah kita siapkan.
+        total_points_calculated, 
+        total_weight_calculated
+    FROM 
+        trash_items ti
+    -- Gabungkan (JOIN) dengan tabel trash_categories untuk mendapatkan nilai points_per_kg
+    JOIN 
+        trash_categories tc ON ti.category_id = tc.category_id
+    WHERE 
+        ti.pickup_id = pickup_id_param;
+
+    -- Langkah 2: Update tabel trash_pickup_requests dengan nilai total yang baru dan akurat.
+    -- Ini adalah satu-satunya tugas prosedur ini.
+    UPDATE trash_pickup_requests
+    SET 
+        total_points_earned = total_points_calculated,
+        total_weight_kg = total_weight_calculated
+    WHERE 
+        pickup_id = pickup_id_param;
+
+END$$
+
+DELIMITER ;
+
+---- prosedur terbaru yang diatas itu----
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+
+-- Tabel baru untuk menyimpan semua data rating, ulasan, dan tip
+CREATE TABLE IF NOT EXISTS `pickup_ratings` (
+  `rating_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `pickup_id` INT(11) NOT NULL,
+  `user_id` INT(11) NOT NULL COMMENT 'Pengguna yang memberikan rating',
+  `driver_id` INT(11) NOT NULL COMMENT 'Driver yang menerima rating',
+  `overall_rating` TINYINT(1) NOT NULL COMMENT 'Rating bintang (1-5)',
+  `comment` TEXT NULL COMMENT 'Komentar atau kritik & saran dari user',
+  `tip_amount` DECIMAL(10,2) DEFAULT 0.00 COMMENT 'Jumlah tip yang diberikan',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`rating_id`),
+  UNIQUE KEY `pickup_id_unique` (`pickup_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Memastikan tipe transaksi di dompet bisa menerima 'credit_tip'
+ALTER TABLE `wallet_transactions`
+  MODIFY `transaction_type` ENUM('credit_pickup','credit_tip','debit_withdrawal','correction_add','correction_subtract','bonus') NOT NULL;
+
+-- Menambahkan Foreign Keys untuk tabel baru
+ALTER TABLE `pickup_ratings`
+  ADD CONSTRAINT `fk_rating_pickup` FOREIGN KEY (`pickup_id`) REFERENCES `trash_pickup_requests` (`pickup_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_rating_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_rating_driver` FOREIGN KEY (`driver_id`) REFERENCES `drivers` (`driver_id`) ON DELETE CASCADE;
+
+COMMIT;
+
+-- =================================================================================
+-- RECYCLE WASTE WEBBAPP - SKEMA DATABASE v4.0 (Fitur Rating & Tip)
+-- =================================================================================
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+-- --- TABEL BARU UNTUK RATING, ULASAN, DAN TIP ---
+CREATE TABLE IF NOT EXISTS `pickup_ratings` (
+  `rating_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `pickup_id` INT(11) NOT NULL,
+  `user_id` INT(11) NOT NULL COMMENT 'Pengguna yang memberikan rating',
+  `driver_id` INT(11) NOT NULL COMMENT 'Driver yang menerima rating',
+  `overall_rating` TINYINT(1) NOT NULL COMMENT 'Rating bintang (1-5)',
+  `punctuality_rating` TINYINT(1) DEFAULT NULL COMMENT 'Rating ketepatan waktu (opsional)',
+  `service_rating` TINYINT(1) DEFAULT NULL COMMENT 'Rating pelayanan (opsional)',
+  `comment` TEXT NULL COMMENT 'Komentar atau kritik & saran dari user',
+  `tip_amount` DECIMAL(10,2) DEFAULT 0.00 COMMENT 'Jumlah tip yang diberikan',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`rating_id`),
+  UNIQUE KEY `pickup_id_unique` (`pickup_id`) COMMENT 'Satu pickup hanya bisa memiliki satu rating',
+  KEY `fk_rating_user` (`user_id`),
+  KEY `fk_rating_driver` (`driver_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+-- --- MODIFIKASI TABEL TRANSAKSI DOMPET ---
+-- Menambahkan kolom `tip_amount` untuk membedakan pendapatan dari tugas dan dari tip
+ALTER TABLE `wallet_transactions`
+  MODIFY `transaction_type` ENUM('credit_pickup','credit_tip','debit_withdrawal','correction_add','correction_subtract','bonus') NOT NULL;
+
+
+-- --- MENAMBAHKAN FOREIGN KEYS UNTUK TABEL BARU ---
+ALTER TABLE `pickup_ratings`
+  ADD CONSTRAINT `fk_rating_pickup` FOREIGN KEY (`pickup_id`) REFERENCES `trash_pickup_requests` (`pickup_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_rating_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_rating_driver` FOREIGN KEY (`driver_id`) REFERENCES `drivers` (`driver_id`) ON DELETE CASCADE;
+
+
+COMMIT;
+
+-- Menambahkan kolom latitude dan longitude jika belum ada di tabel addresses
+ALTER TABLE `addresses`
+ADD COLUMN IF NOT EXISTS `latitude` DECIMAL(10, 8) NULL DEFAULT NULL AFTER `country`,
+ADD COLUMN IF NOT EXISTS `longitude` DECIMAL(11, 8) NULL DEFAULT NULL AFTER `latitude`,
+ADD COLUMN IF NOT EXISTS `gmaps_place_id` VARCHAR(255) NULL DEFAULT NULL COMMENT 'ID Unik dari Google Maps untuk akurasi' AFTER `longitude`;
+
+-- =================================================================================
+-- RECYCLE WASTE WEBBAPP - SKEMA DATABASE v3.1 (FINAL)
+-- Deskripsi: Menambahkan Stored Procedure untuk kalkulasi otomatis bayaran driver
+--            berdasarkan jarak dan berat.
+-- =================================================================================
+
+-- Mengatur session agar aman saat melakukan perubahan
+SET autocommit=0;
+START TRANSACTION;
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+
+
+-- =================================================================================
+-- Bagian 1: Modifikasi Tabel Inti (Sama seperti sebelumnya, aman dijalankan lagi)
+-- =================================================================================
+ALTER TABLE `users`
+  MODIFY `role` enum('customer','driver','admin','tpa_operator') NOT NULL DEFAULT 'customer',
+  MODIFY `account_status` enum('active','inactive','suspended','pending_verification') NOT NULL DEFAULT 'pending_verification';
+
+ALTER TABLE `trash_pickup_requests`
+  ADD COLUMN IF NOT EXISTS `distance_km` DECIMAL(10,2) NULL COMMENT 'Jarak total perjalanan driver untuk pickup ini' AFTER `assigned_tpa_id`,
+  ADD COLUMN IF NOT EXISTS `estimated_driver_fee` DECIMAL(10,2) NULL COMMENT 'Estimasi bayaran untuk driver saat tugas ditawarkan' AFTER `distance_km`,
+  ADD COLUMN IF NOT EXISTS `actual_driver_fee` DECIMAL(10,2) NULL COMMENT 'Bayaran final untuk driver setelah tugas selesai' AFTER `estimated_driver_fee`;
+
+ALTER TABLE `drivers`
+  ADD COLUMN IF NOT EXISTS `wallet_id` INT(11) UNIQUE NULL AFTER `user_id`;
+
+-- =================================================================================
+-- Bagian 2: Hapus & Buat Ulang Struktur yang Digantikan
+-- =================================================================================
+DROP TABLE IF EXISTS `pickup_assignments`;
+CREATE TABLE IF NOT EXISTS `pickup_offers` (
+  `offer_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `pickup_id` INT(11) NOT NULL,
+  `driver_id` INT(11) NOT NULL,
+  `offer_status` ENUM('sent','seen','accepted','rejected','timed_out') NOT NULL DEFAULT 'sent',
+  `offered_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `expires_at` TIMESTAMP NULL,
+  `responded_at` TIMESTAMP NULL,
+  PRIMARY KEY (`offer_id`),
+  UNIQUE KEY `offer_per_pickup_per_driver` (`pickup_id`,`driver_id`),
+  KEY `driver_id` (`driver_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+-- =================================================================================
+-- Bagian 3: Pembuatan Tabel Fungsional Baru (Sama seperti sebelumnya)
+-- =================================================================================
+CREATE TABLE IF NOT EXISTS `driver_wallets` (
+  `wallet_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `driver_id` INT(11) NOT NULL,
+  `balance` DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`wallet_id`),
+  UNIQUE KEY `driver_id` (`driver_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `wallet_transactions` (
+  `transaction_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `wallet_id` INT(11) NOT NULL,
+  `pickup_id` INT(11) NULL,
+  `amount` DECIMAL(15,2) NOT NULL,
+  `transaction_type` ENUM('credit_pickup','debit_withdrawal','correction_add','correction_subtract','bonus') NOT NULL,
+  `description` VARCHAR(255) NOT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`transaction_id`),
+  KEY `wallet_id` (`wallet_id`),
+  KEY `pickup_id` (`pickup_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `notifications` (
+  `notification_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id` INT(11) NOT NULL,
+  `title` VARCHAR(150) NOT NULL,
+  `message` TEXT NOT NULL,
+  `notification_type` ENUM('new_pickup_offer','pickup_accepted','driver_en_route','pickup_completed','pickup_cancelled','system_alert','wallet_credit') NOT NULL,
+  `related_pickup_id` INT(11) NULL,
+  `is_read` BOOLEAN NOT NULL DEFAULT FALSE,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`notification_id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `driver_routes` (
+  `route_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `driver_id` INT(11) NOT NULL,
+  `assigned_tpa_id` INT(11) NOT NULL,
+  `route_status` ENUM('pending','in_progress','completed','cancelled') NOT NULL DEFAULT 'pending',
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`route_id`),
+  KEY `driver_id` (`driver_id`),
+  KEY `assigned_tpa_id` (`assigned_tpa_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `route_pickups` (
+  `route_pickup_id` INT(11) NOT NULL AUTO_INCREMENT,
+  `route_id` INT(11) NOT NULL,
+  `pickup_id` INT(11) NOT NULL,
+  `pickup_order` INT(11) NOT NULL,
+  `status` ENUM('pending','completed','skipped') NOT NULL DEFAULT 'pending',
+  PRIMARY KEY (`route_pickup_id`),
+  UNIQUE KEY `route_pickup_unique` (`route_id`,`pickup_id`),
+  KEY `pickup_id` (`pickup_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+-- =================================================================================
+-- Bagian 4: Stored Procedures & Triggers
+-- =================================================================================
+DELIMITER $$
+
+-- Prosedur untuk menghitung poin customer (dari versi sebelumnya)
+DROP PROCEDURE IF EXISTS `CalculatePickupPoints`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `CalculatePickupPoints` (IN `pickup_id_param` INT)
+BEGIN
+    -- ... (Isi prosedur ini sama seperti yang sudah ada di database Anda)
+END$$
+
+-- *** PROSEDUR BARU UNTUK MENGHITUNG JARAK DAN BAYARAN DRIVER ***
+DROP PROCEDURE IF EXISTS `CalculateDriverFeeAndDistance`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `CalculateDriverFeeAndDistance` (IN `pickup_id_param` INT, IN `driver_id_param` INT)
+BEGIN
+    -- Variabel untuk menyimpan data
+    DECLARE driver_lat, driver_lon, user_lat, user_lon, tpa_lat, tpa_lon DECIMAL(11, 8);
+    DECLARE total_weight, distance_to_user, distance_to_tpa, total_distance DECIMAL(10, 2);
+    DECLARE base_fee, distance_rate, weight_rate, final_fee DECIMAL(10, 2);
+
+    -- 1. Konfigurasi Tarif (Bisa Anda ubah sesuai model bisnis)
+    SET base_fee = 5000.00;      -- Biaya dasar per penjemputan
+    SET distance_rate = 2500.00; -- Biaya per kilometer
+    SET weight_rate = 500.00;      -- Biaya tambahan per kilogram
+
+    -- 2. Ambil data koordinat dan berat yang diperlukan
+    SELECT d.current_latitude, d.current_longitude INTO driver_lat, driver_lon
+    FROM drivers d WHERE d.driver_id = driver_id_param;
+
+    SELECT tpr.pickup_latitude, tpr.pickup_longitude, tpr.total_weight_kg, ds.latitude, ds.longitude
+    INTO user_lat, user_lon, total_weight, tpa_lat, tpa_lon
+    FROM trash_pickup_requests tpr
+    JOIN disposal_sites ds ON tpr.assigned_tpa_id = ds.tpa_id
+    WHERE tpr.pickup_id = pickup_id_param;
+
+    -- 3. Hitung Jarak menggunakan Formula Haversine (Akurat untuk GPS)
+    -- Rumus ini menghitung jarak antar dua titik di permukaan bumi
+    IF driver_lat IS NOT NULL AND user_lat IS NOT NULL AND tpa_lat IS NOT NULL THEN
+        -- Jarak dari Driver ke User
+        SET distance_to_user = 111.111 * DEGREES(ACOS(LEAST(1.0, COS(RADIANS(driver_lat))
+             * COS(RADIANS(user_lat))
+             * COS(RADIANS(driver_lon - user_lon))
+             + SIN(RADIANS(driver_lat))
+             * SIN(RADIANS(user_lat)))));
+
+        -- Jarak dari User ke TPA
+        SET distance_to_tpa = 111.111 * DEGREES(ACOS(LEAST(1.0, COS(RADIANS(user_lat))
+             * COS(RADIANS(tpa_lat))
+             * COS(RADIANS(user_lon - tpa_lon))
+             + SIN(RADIANS(user_lat))
+             * SIN(RADIANS(tpa_lat)))));
+
+        SET total_distance = distance_to_user + distance_to_tpa;
+    ELSE
+        SET total_distance = 0;
+    END IF;
+
+    -- 4. Hitung Estimasi Bayaran Driver
+    SET final_fee = base_fee + (total_distance * distance_rate) + (COALESCE(total_weight, 0) * weight_rate);
+
+    -- 5. Update tabel trash_pickup_requests dengan data baru
+    UPDATE trash_pickup_requests
+    SET
+        distance_km = total_distance,
+        estimated_driver_fee = final_fee,
+        assigned_driver_id = driver_id_param -- Tetapkan driver yang dihitung
+    WHERE pickup_id = pickup_id_param;
+
+END$$
+
+DELIMITER ;
+
+
+-- =================================================================================
+-- Bagian 5: Foreign Keys dan Constraints
+-- =================================================================================
+-- (Semua constraint dari versi sebelumnya, aman dijalankan lagi)
+-- ...
+
+-- =================================================================================
+-- Bagian 6: Finalisasi
+-- =================================================================================
+COMMIT;
+
+ALTER TABLE addresses
+ADD COLUMN IF NOT EXISTS alias_name VARCHAR(100) NULL AFTER user_id,
+ADD COLUMN IF NOT EXISTS province VARCHAR(100) NULL AFTER city,
+ADD COLUMN IF NOT EXISTS country VARCHAR(100) DEFAULT 'Indonesia' AFTER postal_code,
+ADD COLUMN IF NOT EXISTS latitude DECIMAL(10, 8) NULL AFTER country,
+ADD COLUMN IF NOT EXISTS longitude DECIMAL(11, 8) NULL AFTER latitude,
+ADD COLUMN IF NOT EXISTS gmaps_place_id VARCHAR(255) NULL AFTER longitude,
+ADD COLUMN IF NOT EXISTS notes TEXT NULL AFTER gmaps_place_id;
+
+-- Modify kolom is_active terpisah untuk menghindari konflik
+ALTER TABLE addresses
+MODIFY COLUMN is_active BOOLEAN DEFAULT FALSE;
+
+-- Menambahkan kolom untuk koordinat pickup spesifik, driver, TPA, dll. di trash_pickup_requests
+ALTER TABLE trash_pickup_requests
+ADD COLUMN IF NOT EXISTS pickup_address_text TEXT NOT NULL AFTER address_id, -- Menyimpan salinan teks alamat
+ADD COLUMN IF NOT EXISTS pickup_city VARCHAR(100) NOT NULL AFTER pickup_address_text,
+ADD COLUMN IF NOT EXISTS pickup_postal_code VARCHAR(20) NOT NULL AFTER pickup_city,
+ADD COLUMN IF NOT EXISTS pickup_latitude DECIMAL(10, 8) NULL AFTER pickup_postal_code,
+ADD COLUMN IF NOT EXISTS pickup_longitude DECIMAL(11, 8) NULL AFTER pickup_latitude,
+ADD COLUMN IF NOT EXISTS preferred_pickup_date DATE NULL AFTER requested_at,
+ADD COLUMN IF NOT EXISTS preferred_pickup_time_slot VARCHAR(50) NULL AFTER preferred_pickup_date,
+ADD COLUMN IF NOT EXISTS actual_pickup_time TIMESTAMP NULL AFTER preferred_pickup_time_slot,
+ADD COLUMN IF NOT EXISTS cancellation_reason TEXT NULL AFTER status,
+ADD COLUMN IF NOT EXISTS estimated_volume_liters DECIMAL(10,2) NULL AFTER total_weight_kg,
+ADD COLUMN IF NOT EXISTS driver_notes TEXT NULL AFTER total_points_earned,
+ADD COLUMN IF NOT EXISTS driver_code VARCHAR(50) UNIQUE NULL AFTER user_id,
+ADD COLUMN IF NOT EXISTS profile_picture_url TEXT NULL AFTER driver_code;,
+ADD COLUMN IF NOT EXISTS assigned_driver_id INT NULL AFTER driver_notes,
+ADD COLUMN IF NOT EXISTS assigned_vehicle_id INT NULL AFTER assigned_driver_id,
+ADD COLUMN IF NOT EXISTS assigned_tpa_id INT NULL AFTER assigned_vehicle_id;
+
+-- Modify kolom status terpisah
+ALTER TABLE trash_pickup_requests
+MODIFY COLUMN status ENUM('requested', 'pending_assignment', 'assigned_to_driver', 'driver_en_route', 'arrived_at_location', 'picked_up', 'processing_at_facility', 'completed', 'cancelled_by_user', 'cancelled_by_system', 'failed') DEFAULT 'requested';
+
+-- Rename kolom notes menjadi notes_for_driver jika kolom notes ada
+ALTER TABLE trash_pickup_requests
+CHANGE COLUMN notes notes_for_driver TEXT NULL;
+
+-- Foreign key akan ditambahkan nanti setelah tabelnya dibuat
+
+-- Modifikasi tabel users untuk role dan status
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS profile_picture_url TEXT NULL AFTER password_hash,
+ADD COLUMN IF NOT EXISTS role ENUM('customer', 'driver', 'admin', 'tpa_operator') NOT NULL DEFAULT 'customer' AFTER profile_picture_url,
+ADD COLUMN IF NOT EXISTS account_status ENUM('active', 'inactive', 'suspended', 'pending_verification') NOT NULL DEFAULT 'active' AFTER role,
+ADD COLUMN IF NOT EXISTS email_verified_at TIMESTAMP NULL AFTER account_status,
+ADD COLUMN IF NOT EXISTS phone_verified_at TIMESTAMP NULL AFTER email_verified_at,
+ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMP NULL AFTER phone_verified_at,
+ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER created_at;
+
+-- Modify kolom phone_number terpisah
+ALTER TABLE users
+MODIFY COLUMN phone_number VARCHAR(20) UNIQUE NOT NULL;
+
+
+-- --- TABEL BARU ---
+
+-- Table: drivers
+CREATE TABLE IF NOT EXISTS drivers (
+    driver_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNIQUE NOT NULL,
+    license_number VARCHAR(50) UNIQUE NOT NULL,
+    license_expiry_date DATE NOT NULL,
+    vehicle_id INT NULL,
+    availability_status ENUM('available', 'on_pickup', 'offline', 'on_break') DEFAULT 'offline',
+    current_latitude DECIMAL(10, 8) NULL,
+    current_longitude DECIMAL(11, 8) NULL,
+    last_location_update TIMESTAMP NULL,
+    rating_average DECIMAL(3,2) DEFAULT 0.00,
+    total_ratings INT DEFAULT 0,
+    is_approved BOOLEAN DEFAULT FALSE,
+    approved_by_admin_id INT NULL,
+    approved_at TIMESTAMP NULL,
+    notes_admin TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (approved_by_admin_id) REFERENCES users(id) ON DELETE SET NULL
+    -- FK untuk vehicle_id ditambahkan setelah tabel vehicles dibuat
+);
+
+-- Table: vehicles
+CREATE TABLE IF NOT EXISTS vehicles (
+    vehicle_id INT AUTO_INCREMENT PRIMARY KEY,
+    license_plate VARCHAR(20) UNIQUE NOT NULL,
+    vehicle_type ENUM('motorcycle_box', 'small_truck', 'medium_truck', 'bicycle_cart') NOT NULL,
+    brand VARCHAR(50) NULL,
+    model VARCHAR(50) NULL,
+    year_manufactured YEAR NULL,
+    capacity_kg DECIMAL(10,2) NULL,
+    capacity_volume_liters DECIMAL(10,2) NULL,
+    status ENUM('operational', 'maintenance', 'out_of_service') DEFAULT 'operational',
+    current_driver_id INT NULL, -- Opsional, jika ingin melacak driver aktif per kendaraan
+    notes TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (current_driver_id) REFERENCES drivers(driver_id) ON DELETE SET NULL
+);
+
+-- Menambahkan FK vehicle_id ke tabel drivers setelah vehicles dibuat
+ALTER TABLE drivers
+ADD CONSTRAINT fk_driver_vehicle
+FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) ON DELETE SET NULL;
+
+-- Table: disposal_sites (TPA - Tempat Pembuangan Akhir atau Fasilitas Pengolahan)
+CREATE TABLE IF NOT EXISTS disposal_sites (
+    tpa_id INT AUTO_INCREMENT PRIMARY KEY,
+    site_name VARCHAR(150) NOT NULL,
+    operator_user_id INT NULL,
+    address_text TEXT NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    province VARCHAR(100) NULL,
+    postal_code VARCHAR(20) NOT NULL,
+    latitude DECIMAL(10, 8) NOT NULL,
+    longitude DECIMAL(11, 8) NOT NULL,
+    contact_person VARCHAR(100) NULL,
+    contact_phone VARCHAR(20) NULL,
+    operating_hours VARCHAR(255) NULL,
+    accepted_trash_categories TEXT NULL, -- Bisa JSON array dari category_id atau comma-separated string
+    capacity_ton_per_day DECIMAL(10,2) NULL,
+    notes TEXT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (operator_user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Table: pickup_assignments
+CREATE TABLE IF NOT EXISTS pickup_assignments (
+    assignment_id INT AUTO_INCREMENT PRIMARY KEY,
+    pickup_id INT UNIQUE NOT NULL,
+    driver_id INT NOT NULL,
+    vehicle_id INT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    assignment_status ENUM('pending_acceptance', 'accepted_by_driver', 'rejected_by_driver', 'in_progress', 'completed', 'cancelled') DEFAULT 'pending_acceptance',
+    estimated_arrival_time TIMESTAMP NULL,
+    actual_arrival_time TIMESTAMP NULL,
+    completion_time TIMESTAMP NULL,
+    driver_start_latitude DECIMAL(10, 8) NULL,
+    driver_start_longitude DECIMAL(11, 8) NULL,
+    notes TEXT NULL,
+    FOREIGN KEY (pickup_id) REFERENCES trash_pickup_requests(pickup_id) ON DELETE CASCADE,
+    FOREIGN KEY (driver_id) REFERENCES drivers(driver_id) ON DELETE CASCADE,
+    FOREIGN KEY (vehicle_id) REFERENCES vehicles(vehicle_id) ON DELETE SET NULL
+);
+
+-- Menambahkan Foreign Key yang belum terdefinisi di trash_pickup_requests
+ALTER TABLE trash_pickup_requests
+ADD CONSTRAINT fk_pickup_driver FOREIGN KEY (assigned_driver_id) REFERENCES drivers(driver_id) ON DELETE SET NULL,
+ADD CONSTRAINT fk_pickup_vehicle FOREIGN KEY (assigned_vehicle_id) REFERENCES vehicles(vehicle_id) ON DELETE SET NULL,
+ADD CONSTRAINT fk_pickup_tpa FOREIGN KEY (assigned_tpa_id) REFERENCES disposal_sites(tpa_id) ON DELETE SET NULL;
+
+
+-- --- CONTOH DATA TPA DI SEKITAR JAKARTA ---
+INSERT INTO disposal_sites (site_name, address_text, city, province, postal_code, latitude, longitude, operating_hours, accepted_trash_categories, is_active) VALUES
+('TPST Bantargebang', 'Jl. Pangkalan 5, Sumur Batu, Bantargebang', 'Bekasi', 'Jawa Barat', '17151', -6.338056, 106.992500, '24 Jam (Penerimaan Terjadwal)', 'ORG,ANORG,B3', TRUE),
+('Bank Sampah Induk Gesit Menteng', 'Jl. Menteng Pulo No.16, RT.3/RW.12, Menteng Atas, Setiabudi', 'Jakarta Selatan', 'DKI Jakarta', '12960', -6.216530, 106.838790, 'Senin-Jumat 08:00-16:00', 'ANORG', TRUE),
+('Bank Sampah Hijau Selaras', 'Jl. H. Jian II No.22, RT.1/RW.7, Cipete Utara, Kebayoran Baru', 'Jakarta Selatan', 'DKI Jakarta', '12150', -6.255810, 106.800570, 'Sabtu 09:00-12:00', 'ANORG,ORG', TRUE),
+('TPS 3R Semeru', 'Jl. Semeru Raya No.1, RT.1/RW.10, Grogol, Grogol Petamburan', 'Jakarta Barat', 'DKI Jakarta', '11450', -6.168990, 106.790770, 'Senin-Sabtu 07:00-15:00', 'ORG,ANORG', TRUE),
+('Bank Sampah Maju Bersama Rawasari', 'Jl. Rawasari Sel. No.20, RT.10/RW.2, Rawasari, Cempaka Putih', 'Jakarta Pusat', 'DKI Jakarta', '10570', -6.184040, 106.868410, 'Sesuai Jadwal Komunitas', 'ANORG', TRUE),
+('Fasilitas Pengolahan Sampah Sunter (ITF Sunter - Proyek)', 'Jl. Agung Karya VIII Blok D Kav. No. 1, Sunter Agung, Tanjung Priok', 'Jakarta Utara', 'DKI Jakarta', '14350', -6.133790, 106.876500, 'Dalam Pembangunan/Perencanaan', 'ORG,ANORG', TRUE),
+('Bank Sampah Anyelir Berseri', 'Jl. Anyelir Gg. III No. 25 RT. 005 RW. 003, Sukapura, Cilincing', 'Jakarta Utara', 'DKI Jakarta', '14140', -6.130000, 106.920000, 'Sesuai Jadwal Komunitas', 'ANORG', TRUE),
+('Bank Sampah Kenanga', 'Jl. Tipar Cakung Rt.001 Rw.05 No. 55, Sukapura, Cilincing', 'Jakarta Utara', 'DKI Jakarta', '14140', -6.131500, 106.921500, 'Sesuai Jadwal Komunitas', 'ANORG', TRUE),
+('TPS 3R Rawajati', 'Jl. Rawajati Timur II, RT.3/RW.2, Rawajati, Pancoran', 'Jakarta Selatan', 'DKI Jakarta', '12750', -6.247500, 106.848200, 'Senin-Sabtu Operasional', 'ORG,ANORG', TRUE),
+('Bank Sampah KSM Sejahtera Pondok Bambu', 'Jl. Pahlawan Revolusi Gg. H. SABA No.68, RT.1/RW.4, Pd. Bambu, Duren Sawit', 'Jakarta Timur', 'DKI Jakarta', '13430', -6.237800, 106.905100, 'Sesuai Jadwal Komunitas', 'ANORG', TRUE),
+('Bank Sampah Berkah Cipinang Muara', 'Jl. Cipinang Muara Raya No.20, RT.14/RW.3, Cipinang Muara, Jatinegara', 'Jakarta Timur', 'DKI Jakarta', '13420', -6.222000, 106.888000, 'Sesuai Jadwal Komunitas', 'ANORG', TRUE),
+('Bank Sampah Kencana Lestari', 'Jl. Kencana Lestari Blok CE 1 No. 10, Cilandak Barat', 'Jakarta Selatan', 'DKI Jakarta', '12430', -6.289130, 106.790470, 'Sesuai Jadwal Komunitas', 'ANORG', TRUE),
+('Pusat Daur Ulang (PDU) Pesanggrahan', 'Jl. Masjid Al-Mubarok Raya No.30, RT.5/RW.1, Pesanggrahan', 'Jakarta Selatan', 'DKI Jakarta', '12320', -6.266800, 106.750500, 'Senin-Jumat 08:00-16:00', 'ANORG', TRUE),
+('Bank Sampah RW 03 Pegadungan', 'Jl. Pegadungan Raya No.01, RT.1/RW.3, Pegadungan, Kalideres', 'Jakarta Barat', 'DKI Jakarta', '11830', -6.139500, 106.708000, 'Sesuai Jadwal Komunitas', 'ANORG', TRUE),
+('Bank Sampah Melati Bersih Cengkareng', 'Jl. Utama Raya No.48, RT.1/RW.1, Cengkareng Bar., Kecamatan Cengkareng', 'Jakarta Barat', 'DKI Jakarta', '11730', -6.150000, 106.735000, 'Sesuai Jadwal Komunitas', 'ANORG', TRUE);
+
+COMMIT;
+
+CREATE DATABASE IF NOT EXISTS recycle_waste_webapp;
+USE recycle_waste_webapp;
+
+-- Table: users
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone_number VARCHAR(20) NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table: addresses
+CREATE TABLE addresses (
+    address_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    address_text TEXT NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    postal_code VARCHAR(20) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Table: sessions
+CREATE TABLE sessions (
+    session_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token VARCHAR(255) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at DATETIME NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Table: trash_pickup_requests
+CREATE TABLE trash_pickup_requests (
+    pickup_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    address_id INT NOT NULL,
+    requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('requested', 'picked_up', 'cancelled') DEFAULT 'requested',
+    pickup_time TIMESTAMP NULL,
+    pickup_date DATE NULL,
+    pickup_address TEXT NOT NULL,
+    total_weight_kg DECIMAL(10,2) DEFAULT 0.00,
+    total_points_earned INT DEFAULT 0,
+    notes TEXT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (address_id) REFERENCES addresses(address_id) ON DELETE CASCADE
+);
+
+-- Table: trash_photos
+CREATE TABLE trash_photos (
+    photo_id INT AUTO_INCREMENT PRIMARY KEY,
+    request_id INT NOT NULL,
+    photo_url TEXT NOT NULL,
+    taken_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    photo_type ENUM('before_pickup', 'after_pickup', 'sorted') DEFAULT 'before_pickup',
+    FOREIGN KEY (request_id) REFERENCES trash_pickup_requests(pickup_id) ON DELETE CASCADE
+);
+
+-- Table: trash_categories (untuk kategori sampah seperti organic, anorganic, B3)
+CREATE TABLE trash_categories (
+    category_id INT AUTO_INCREMENT PRIMARY KEY,
+    category_name VARCHAR(50) NOT NULL,
+    category_code VARCHAR(10) NOT NULL UNIQUE, -- ORG, ANORG, B3
+    points_per_kg INT NOT NULL DEFAULT 10, -- poin per kg untuk kategori ini
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table: trash_items (detail sampah per kategori dalam satu pickup)
+CREATE TABLE trash_items (
+    item_id INT AUTO_INCREMENT PRIMARY KEY,
+    pickup_id INT NOT NULL,
+    category_id INT NOT NULL,
+    weight_kg DECIMAL(10,2) NOT NULL,
+    points_earned INT NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (pickup_id) REFERENCES trash_pickup_requests(pickup_id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES trash_categories(category_id)
+);
+
+-- Table: points (history poin user)
+CREATE TABLE points (
+    point_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    request_id INT NULL, -- bisa null untuk poin manual atau bonus
+    points_earned INT NOT NULL,
+    points_type ENUM('pickup', 'bonus', 'referral', 'manual') DEFAULT 'pickup',
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (request_id) REFERENCES trash_pickup_requests(pickup_id) ON DELETE SET NULL
+);
+
+-- Table: point_redemptions
+CREATE TABLE point_redemptions (
+    redeem_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    points_redeemed INT NOT NULL,
+    reward_type ENUM('cash', 'voucher', 'grocery', 'tree_planting') NOT NULL,
+    reward_value DECIMAL(10,2), -- nilai dalam rupiah atau equivalent
+    description TEXT,
+    status ENUM('pending', 'approved', 'completed', 'cancelled') DEFAULT 'pending',
+    redeemed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    processed_at TIMESTAMP NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Table: catalog_items (untuk menampilkan katalog reward)
+CREATE TABLE catalog_items (
+    catalog_id INT AUTO_INCREMENT PRIMARY KEY,
+    item_name VARCHAR(100) NOT NULL,
+    item_type ENUM('cash', 'voucher', 'grocery', 'tree_planting') NOT NULL,
+    points_required INT NOT NULL,
+    item_value DECIMAL(10,2), -- nilai dalam rupiah
+    description TEXT,
+    image_url TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    stock_quantity INT DEFAULT -1, -- -1 untuk unlimited
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Table: pickup_history (untuk tracking riwayat lengkap)
+CREATE TABLE pickup_history (
+    history_id INT AUTO_INCREMENT PRIMARY KEY,
+    pickup_id INT NOT NULL,
+    status_from ENUM('requested', 'picked_up', 'cancelled'),
+    status_to ENUM('requested', 'picked_up', 'cancelled'),
+    changed_by VARCHAR(50), -- admin atau system
+    change_reason TEXT,
+    changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (pickup_id) REFERENCES trash_pickup_requests(pickup_id) ON DELETE CASCADE
+);
+
+-- Insert default trash categories
+INSERT INTO trash_categories (category_name, category_code, points_per_kg, description) VALUES
+('Organic', 'ORG', 5, 'Sampah organik seperti sisa makanan, daun, dll'),
+('Anorganic', 'ANORG', 10, 'Sampah anorganik seperti plastik, kertas, logam'),
+('B3 (Bahan Berbahaya Beracun)', 'B3', 20, 'Sampah berbahaya seperti baterai, lampu, elektronik');
+
+-- Insert default catalog items
+INSERT INTO catalog_items (item_name, item_type, points_required, item_value, description, is_active) VALUES
+('Cash Reward', 'cash', 500, 25000, 'Transfer uang tunai ke rekening Anda', TRUE),
+('Grocery Package', 'grocery', 750, 50000, 'Paket sembako untuk keluarga', TRUE),
+('Shopping Voucher', 'voucher', 300, 15000, 'Voucher belanja untuk toko retail', TRUE),
+('Plant a Tree', 'tree_planting', 200, 0, 'Kontribusi penanaman pohon untuk lingkungan', TRUE);
+
+-- Create indexes for better performance
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_sessions_token ON sessions(token);
+CREATE INDEX idx_pickup_user_date ON trash_pickup_requests(user_id, pickup_date);
+CREATE INDEX idx_pickup_status ON trash_pickup_requests(status);
+CREATE INDEX idx_points_user ON points(user_id);
+CREATE INDEX idx_redemptions_user ON point_redemptions(user_id);
+
+-- Create views for easier data access
+-- View untuk total poin aktif user
+CREATE VIEW user_points_summary AS
+SELECT 
+    u.id as user_id,
+    u.first_name,
+    u.last_name,
+    u.email,
+    COALESCE(SUM(p.points_earned), 0) as total_points_earned,
+    COALESCE(SUM(pr.points_redeemed), 0) as total_points_redeemed,
+    (COALESCE(SUM(p.points_earned), 0) - COALESCE(SUM(pr.points_redeemed), 0)) as current_points
+FROM users u
+LEFT JOIN points p ON u.id = p.user_id
+LEFT JOIN point_redemptions pr ON u.id = pr.user_id AND pr.status = 'completed'
+GROUP BY u.id, u.first_name, u.last_name, u.email;
+
+-- View untuk riwayat pickup lengkap
+CREATE VIEW pickup_details AS
+SELECT 
+    tpr.pickup_id,
+    tpr.user_id,
+    CONCAT(u.first_name, ' ', u.last_name) as user_name,
+    u.email,
+    u.phone_number,
+    tpr.pickup_address,
+    tpr.pickup_date,
+    tpr.pickup_time,
+    tpr.status,
+    tpr.total_weight_kg,
+    tpr.total_points_earned,
+    tpr.requested_at,
+    GROUP_CONCAT(
+        CONCAT(tc.category_name, ': ', ti.weight_kg, 'kg (', ti.points_earned, ' pts)')
+        SEPARATOR ', '
+    ) as items_detail
+FROM trash_pickup_requests tpr
+JOIN users u ON tpr.user_id = u.id
+LEFT JOIN trash_items ti ON tpr.pickup_id = ti.pickup_id
+LEFT JOIN trash_categories tc ON ti.category_id = tc.category_id
+GROUP BY tpr.pickup_id, tpr.user_id, u.first_name, u.last_name, u.email, u.phone_number,
+         tpr.pickup_address, tpr.pickup_date, tpr.pickup_time, tpr.status, 
+         tpr.total_weight_kg, tpr.total_points_earned, tpr.requested_at;
+
+-- Stored Procedure untuk menghitung poin berdasarkan berat
+DELIMITER //
+CREATE PROCEDURE CalculatePickupPoints(
+    IN pickup_id_param INT
+)
+BEGIN
+    DECLARE total_points INT DEFAULT 0;
+    DECLARE total_weight DECIMAL(10,2) DEFAULT 0;
+    
+    -- Hitung total poin dan berat dari trash_items
+    SELECT 
+        COALESCE(SUM(points_earned), 0),
+        COALESCE(SUM(weight_kg), 0)
+    INTO total_points, total_weight
+    FROM trash_items 
+    WHERE pickup_id = pickup_id_param;
+    
+    -- Update trash_pickup_requests
+    UPDATE trash_pickup_requests 
+    SET 
+        total_points_earned = total_points,
+        total_weight_kg = total_weight,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE pickup_id = pickup_id_param;
+    
+    -- Insert ke tabel points
+    INSERT INTO points (user_id, request_id, points_earned, points_type, description)
+    SELECT 
+        user_id, 
+        pickup_id_param, 
+        total_points, 
+        'pickup',
+        CONCAT('Poin dari pickup sampah seberat ', total_weight, 'kg')
+    FROM trash_pickup_requests 
+    WHERE pickup_id = pickup_id_param
+    AND total_points > 0;
+    
+END//
+DELIMITER ;
+
+-- Trigger untuk auto-calculate poin ketika ada update di trash_items
+DELIMITER //
+CREATE TRIGGER after_trash_items_insert
+AFTER INSERT ON trash_items
+FOR EACH ROW
+BEGIN
+    CALL CalculatePickupPoints(NEW.pickup_id);
+END//
+
+CREATE TRIGGER after_trash_items_update
+AFTER UPDATE ON trash_items
+FOR EACH ROW
+BEGIN
+    CALL CalculatePickupPoints(NEW.pickup_id);
+END//
+
+CREATE TRIGGER after_trash_items_delete
+AFTER DELETE ON trash_items
+FOR EACH ROW
+BEGIN
+    CALL CalculatePickupPoints(OLD.pickup_id);
+END//
+DELIMITER ;
+
+-- Sample data untuk testing (optional)
+-- INSERT INTO users (email, phone_number, first_name, last_name, password_hash) VALUES
+-- ('nosferatu@example.com', '081234567890', 'Nosferatu', 'User', '$2y$10$example_hash');
+
+-- INSERT INTO addresses (user_id, address_text, city, postal_code) VALUES
+-- (1, 'Jl. Raya Gubeng No. 123', 'Surabaya', '60210');
+
+COMMIT;

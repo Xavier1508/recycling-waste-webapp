@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { PulseLoader } from "react-spinners";
-import styles from "@/style";
-import { useRouter } from "next/router";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import Login from "@/components/Login";
 
-const login = () => {
+const LoginPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1000);
+    const timer = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -24,20 +20,17 @@ const login = () => {
       {loading ? (
         <div className="sweet-loading bg-white flex justify-center items-center h-screen">
           <PulseLoader
-            color="#fff"
+            color="#D93D41"
             loading={loading}
             size={15}
-            css={override}
+            cssOverride={{ display: "block", margin: "0 auto" }}
           />
         </div>
       ) : (
-        <>
-          <Login />
-        </>
+        <Login />
       )}
     </div>
-    
   );
 };
 
-export default login;
+export default LoginPage;

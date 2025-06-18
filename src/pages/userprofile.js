@@ -3,49 +3,49 @@ import { PulseLoader } from "react-spinners";
 import Navbar from "@/components/Navbar";
 import styles from "@/style";
 import UserProfile from "@/components/UserProfile";
+import { useRouter } from "next/router";
 
-const ProfilePage = () => {
+const UserProfilePage = () => {
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      router.replace("/login");
+    } else {
+      setLoading(false);
+    }
+  }, [router]);
 
- const override = `
-   display: block;
-   margin: 0 auto;
- `;
- 
-   return (
-     <div>
-       {loading ? (
-         <div className="sweet-loading bgRedGradient flex justify-center items-center h-screen">
-           <PulseLoader
-             color="#ffff"
-             loading={loading}
-             size={15}
-             css={override}
-             aria-label="Loading Spinner"
-             data-testid="loader"
-           />
-         </div>
-      ) : (
-        <>
-          {/* Navbar */}
-          <div className={`${styles.paddingX} ${styles.flexCenter} relative z-30`}>
-            <div className={`${styles.boxWidth}`}>
-              <Navbar />
-            </div>
-          </div>
+  const override = `
+    display: block;
+    margin: 0 auto;
+  `;
 
-          {/* User Profile Content */}
-          <div className="pt-28 bg-[#bf575a]"></div>
-          <UserProfile />
-        </>
-      )}
+  if (loading) {
+    return (
+      <div className="sweet-loading bg-gray-100 flex justify-center items-center h-screen">
+        <PulseLoader
+          color="#D93D41"
+          loading={loading}
+          size={15}
+          cssOverride={{ display: "block", margin: "0 auto" }}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-gray-100 min-h-screen">
+      <div className={`${styles.paddingX} ${styles.flexCenter} fixed top-0 left-0 right-0 z-30 bg-transparent`}>
+        <div className={`${styles.boxWidth}`}>
+          <Navbar />
+        </div>
+      </div>
+      <UserProfile />
     </div>
   );
 };
 
-export default ProfilePage;
+export default UserProfilePage;

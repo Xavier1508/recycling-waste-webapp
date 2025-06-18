@@ -12,8 +12,8 @@ const Hero = () => {
       className={`${styles.flexStart} flex-col text-left md:px-28 xl:px-18 px-4 md:h-[950px] h-[820px] space-y-8 mx-auto`}
     >
       <h1 className="text-white transition-colors font-poppins font-bold text-[28px] md:text-[40px] lg:text-[56px]">
-        Pengelolaan Sampah adalah<br />
-        Tanggung Jawab Kita Bersama
+        Waste Management is<br />
+        Our Shared Responsibility
       </h1>
       <p className="text-white text-left transition-colors font-poppins md:text-[18px] text-[14px] mt-4">
         Kami berkomitmen untuk menciptakan lingkungan yang bersih dan berkelanjutan. <br />

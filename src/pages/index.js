@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import styles from "@/style";
 import { PropagateLoader } from "react-spinners";
 
+
 export default function Home() {
   const [loading, setLoading] = useState(true);
 
@@ -53,7 +54,7 @@ export default function Home() {
             </div>
 
             <div
-              className={`${styles.flexStart} bg-cover homepageBg bg-no-repeat bg-center relative overflow-hidden`}
+              className={`${styles.flexStart} bg-bottom bg-cover homepageBg bg-no-repeat relative overflow-hidden`}
             >
               <div className="absolute top-0 left-0 w-full h-full bg-black opacity-20 z-10 pointer-events-none">
                 <div
