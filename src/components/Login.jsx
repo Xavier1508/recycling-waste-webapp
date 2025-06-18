@@ -5,7 +5,7 @@ import { authAPI } from "@/services/api";
 import { FaUser, FaCar } from "react-icons/fa";
 
 const Login = () => {
-  const [loginMode, setLoginMode] = useState("customer"); // 'customer' or 'driver'
+  const [loginMode, setLoginMode] = useState("customer");
   const [credentials, setCredentials] = useState({
     email: "",
     driver_code: "",
@@ -40,24 +40,20 @@ const Login = () => {
     }
 
     try {
-      // Panggil API yang sesuai berdasarkan mode login
       const response = isCustomer
         ? await authAPI.login(email, password)
-        : await authAPI.loginDriver(driver_code, password); // Anda perlu menambahkan loginDriver di api.js
+        : await authAPI.loginDriver(driver_code, password);
 
-      // Simpan token dan data pengguna (termasuk role) ke localStorage
       localStorage.setItem("authToken", response.data.token);
       localStorage.setItem("userData", JSON.stringify(response.data.user));
 
-      // Kirim event untuk memberitahu komponen lain (seperti Navbar)
       window.dispatchEvent(new CustomEvent("authChange"));
-      
-      // Arahkan ke halaman yang sesuai berdasarkan peran
+
       const userRole = response.data.user?.role;
       if (userRole === 'driver') {
         router.push("/driverprofile");
       } else {
-        router.push("/userprofile"); // atau "/"
+        router.push("/userprofile");
       }
 
     } catch (err) {

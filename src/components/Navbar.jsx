@@ -14,8 +14,6 @@ const Navbar = () => {
   const [navLinks, setNavLinks] = useState(defaultNavLinks);
   const router = useRouter();
 
-  // PENINGKATAN: Menggunakan useCallback agar fungsi ini tidak dibuat ulang pada setiap render,
-  // ini lebih optimal untuk performa.
   const checkAuthStatus = useCallback(() => {
     const token = localStorage.getItem("authToken");
     const userDataString = localStorage.getItem("userData");
@@ -26,15 +24,11 @@ const Navbar = () => {
         setUserProfileData(userData);
         setIsLoggedIn(true);
 
-        // --- PERUBAHAN UTAMA SESUAI PERMINTAAN ANDA ---
         if (userData.role === 'driver') {
-          // Jika rolenya driver, KOSONGKAN semua nav link umum.
           setNavLinks([]); 
         } else {
-          // Jika customer atau tamu, tampilkan link seperti biasa.
           setNavLinks(defaultNavLinks);
         }
-        // ---------------------------------------------
 
       } catch (error) {
         console.error("Gagal parse data pengguna dari localStorage:", error);
@@ -48,22 +42,22 @@ const Navbar = () => {
       setUserProfileData(null);
       setNavLinks(defaultNavLinks);
     }
-  }, []); // useCallback tidak memiliki dependency di sini
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsSticky(window.scrollY > 50);
     };
 
-    checkAuthStatus(); // Panggil fungsi saat komponen pertama kali dimuat
+    checkAuthStatus();
     window.addEventListener("scroll", handleScroll);
-    window.addEventListener("authChange", checkAuthStatus); // Dengar event login/logout
+    window.addEventListener("authChange", checkAuthStatus);
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("authChange", checkAuthStatus);
     };
-  }, [checkAuthStatus]); // PERBAIKAN: Gunakan fungsi yang stabil sebagai dependency
+  }, [checkAuthStatus]); 
 
   const getProfileLink = () => {
     if (!userProfileData) return "/login";
@@ -73,7 +67,6 @@ const Navbar = () => {
   const generateHref = (id) => id.startsWith('/') ? id : `/${id}`;
 
   return (
-    // SEMUA KODE JSX, STYLE, DAN LOGIKA TAMPILAN ANDA DI BAWAH INI TETAP SAMA SEPERTI ASLINYA
     <nav
       className={`w-full overflow-x-visible md:px-28 px-4 flex md:py-4 py-3 justify-center items-center absolute top-0 left-0 z-10 ${
         isSticky ? "sticky-navbar" : ""
@@ -104,7 +97,6 @@ const Navbar = () => {
           ))}
         </ul>
       ) : (
-        // Beri spacer kosong agar tombol profil tetap di kanan jika tidak ada nav links
         <div className="flex-1"></div>
       )}
 

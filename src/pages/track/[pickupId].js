@@ -30,28 +30,21 @@ const TrackingPage = () => {
                 const response = await pickupAPI.getDetails(pickupId);
                 const details = response.data;
 
-                // --- LANGKAH DIAGNOSTIK ---
-                // Cek console browser Anda (F12 atau Klik Kanan -> Inspect -> Console) untuk melihat log ini.
                 console.log("DATA MENTAH DARI API:", details);
                 if (details) {
                     console.log("Tipe data 'customer_latitude':", typeof details.customer_latitude);
                     console.log("Tipe data 'customer_longitude':", typeof details.customer_longitude);
                 }
                 
-                // --- LANGKAH PERBAIKAN & VALIDASI ---
                 if (details && details.customer_latitude && details.customer_longitude) {
-                    // 1. Konversi paksa koordinat ke tipe data Angka (Number)
                     const lat = parseFloat(details.customer_latitude);
                     const lon = parseFloat(details.customer_longitude);
 
-                    // 2. Cek apakah hasil konversi adalah angka yang valid
                     if (!isNaN(lat) && !isNaN(lon)) {
-                        // 3. Jika valid, perbarui state dengan data yang sudah dikonversi
                         setPickupDetails({
                             ...details,
                             customer_latitude: lat,
                             customer_longitude: lon,
-                            // Lakukan hal yang sama untuk driver & tpa jika perlu
                             driver_latitude: parseFloat(details.driver_latitude),
                             driver_longitude: parseFloat(details.driver_longitude),
                             tpa_latitude: parseFloat(details.tpa_latitude),
@@ -59,12 +52,10 @@ const TrackingPage = () => {
                         });
                         setIsMapDataValid(true);
                     } else {
-                        // Jika hasil konversi bukan angka, berarti data memang tidak valid
                         setError('Data lokasi customer tidak valid untuk ditampilkan.');
                         setIsMapDataValid(false);
                     }
                 } else {
-                    // Jika data atau koordinatnya tidak ada sama sekali
                     setError('Detail lokasi tidak ditemukan dalam data penjemputan.');
                     setIsMapDataValid(false);
                 }

@@ -5,16 +5,13 @@ import { MdFormatListNumbered } from "react-icons/md";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
-// Komponen Modal Notifikasi "Driver Ditemukan"
 const DriverFoundModal = ({ pickupData, onClose }) => {
 
-    // Efek untuk menutup modal secara otomatis setelah 15 detik
     useEffect(() => {
         const timer = setTimeout(() => {
             onClose();
-        }, 15000); // 15000 milidetik = 15 detik
+        }, 15000);
 
-        // Cleanup timer jika komponen di-unmount atau onClose dipanggil lebih dulu
         return () => clearTimeout(timer);
     }, [onClose]);
 
@@ -24,7 +21,6 @@ const DriverFoundModal = ({ pickupData, onClose }) => {
 
     const { driver, pickupId } = pickupData;
 
-    // Fungsi untuk memformat tipe kendaraan
     const formatVehicleType = (type) => {
         const vehicleMap = {
             'motorcycle_box': 'Motor Roda Tiga',
@@ -84,7 +80,6 @@ const DriverFoundModal = ({ pickupData, onClose }) => {
                     </div>
                 </div>
 
-                {/* Tombol Aksi */}
                 <div className="mt-6">
                     <Link href={`/track/${pickupId}`} legacyBehavior>
                         <a 

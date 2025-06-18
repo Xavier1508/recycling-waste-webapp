@@ -3,11 +3,10 @@ import Link from "next/link";
 import { IoCaretBackCircle, IoAlertCircleOutline } from "react-icons/io5";
 import { FaRegSadTear, FaTrashAlt } from "react-icons/fa";
 import Image from "next/image";
-import { pickupAPI } from "@/services/api"; // Pastikan path ini benar
+import { pickupAPI } from "@/services/api";
 import AuthPromptModal from './AuthPromptModal';
 import { useRouter } from "next/router";
 
-// Contoh gambar placeholder jika item.image_url tidak ada
 const placeholderPickupImage = "https://placehold.co/100x100/e2bbbb/7c1215?text=Pickup";
 
 const History = () => {
@@ -26,7 +25,6 @@ const History = () => {
     } else {
       setIsLoggedIn(false);
       setIsLoading(false);
-      // Tidak perlu langsung buka modal, biarkan user coba akses
     }
   }, []);
 
@@ -35,8 +33,6 @@ const History = () => {
     setError("");
     try {
       const response = await pickupAPI.getHistory();
-      // Asumsi response.data adalah array of history items
-      // dan items_detail adalah string yang perlu di-parse atau ditampilkan apa adanya
       setPickupHistory(response.data || []);
     } catch (err) {
       console.error("Gagal mengambil riwayat:", err);
@@ -52,9 +48,9 @@ const History = () => {
   const handleCancelPickup = async (pickupId) => {
     if (window.confirm("Apakah Anda yakin ingin membatalkan permintaan penjemputan ini?")) {
       try {
-        await pickupAPI.cancelPickup(pickupId); // Pastikan fungsi ini ada di api.js
+        await pickupAPI.cancelPickup(pickupId);
         alert("Permintaan penjemputan berhasil dibatalkan.");
-        fetchHistory(); // Refresh riwayat
+        fetchHistory();
       } catch (err) {
         console.error("Gagal membatalkan penjemputan:", err);
         alert(err.response?.data?.error || "Gagal membatalkan penjemputan.");
@@ -70,7 +66,7 @@ const History = () => {
             year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
         });
     } catch (e) {
-        return dateString; // fallback jika format tidak valid
+        return dateString;
     }
   };
 
@@ -139,7 +135,7 @@ const History = () => {
               <div key={item.pickup_id} className="bg-white rounded-xl shadow-lg p-5 transition-shadow hover:shadow-xl">
                 <div className="sm:flex sm:items-start sm:gap-5">
                   <Image
-                    src={item.image_url || placeholderPickupImage} // Ganti dengan field yang benar jika ada foto pickup
+                    src={item.image_url || placeholderPickupImage}
                     alt={`Penjemputan ${item.pickup_id}`}
                     width={100}
                     height={100}

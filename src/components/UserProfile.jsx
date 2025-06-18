@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { authAPI, userAPI, addressAPI } from "@/services/api"; // <-- Tambahkan addressAPI
+import { authAPI, userAPI, addressAPI } from "@/services/api";
 import { FaBook, FaBookmark, FaTruckMoving, FaRegSadTear, FaUserCircle, FaCamera, FaMapMarkedAlt, FaEdit, FaSave, FaTimes, FaKey } from "react-icons/fa";
 import { MdPinDrop, MdCurrencyExchange, MdLogout, MdTrendingUp, MdTrendingDown, MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { TbPigMoney } from "react-icons/tb";
 import { PulseLoader } from "react-spinners";
 import { usePickup } from "@/context/PickupContext";
 
-// --- KOMPONEN TOMBOL PETA YANG CERDAS ---
 const UserMapViewButton = ({ activePickup, primaryAddress }) => {
-    // Skenario 1: Ada penjemputan aktif
     if (activePickup) {
         return (
             <Link href={`/track/${activePickup.pickup_id}`} legacyBehavior>
@@ -24,7 +22,6 @@ const UserMapViewButton = ({ activePickup, primaryAddress }) => {
         );
     }
 
-    // Skenario 2: Tidak ada penjemputan, TAPI punya alamat utama
     if (primaryAddress) {
         return (
             <Link href={{ pathname: '/maps', query: { lat: primaryAddress.latitude, lng: primaryAddress.longitude, avatar: primaryAddress.user_avatar } }} legacyBehavior>
@@ -38,7 +35,6 @@ const UserMapViewButton = ({ activePickup, primaryAddress }) => {
         );
     }
 
-    // Skenario 3: Default, tidak ada penjemputan & alamat (tombol non-aktif)
     return (
         <div className="block cursor-not-allowed opacity-60 group">
             <div className="flex flex-col items-center justify-center bg-gray-200 w-full h-24 rounded-lg py-2 shadow-md">
@@ -51,8 +47,8 @@ const UserMapViewButton = ({ activePickup, primaryAddress }) => {
 
 const UserProfile = () => {
   const [userData, setUserData] = useState(null);
-  const [activeUserPickup, setActiveUserPickup] = useState(null); // <-- State baru
-  const [primaryAddress, setPrimaryAddress] = useState(null); // <-- State baru
+  const [activeUserPickup, setActiveUserPickup] = useState(null);
+  const [primaryAddress, setPrimaryAddress] = useState(null);
   const [userPoints, setUserPoints] = useState({
     current_points: 0,
     total_points_earned: 0,
@@ -64,7 +60,6 @@ const UserProfile = () => {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // State untuk mode edit profil
   const [isEditMode, setIsEditMode] = useState(false);
   const [editFormData, setEditFormData] = useState({
     first_name: "",
@@ -72,12 +67,10 @@ const UserProfile = () => {
     phone_number: "",
   });
 
-  // State untuk foto profil
   const [profilePictureFile, setProfilePictureFile] = useState(null);
   const [profilePicturePreview, setProfilePicturePreview] = useState(null);
   const fileInputRef = useRef(null);
 
-  // State untuk modal ganti password
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordData, setPasswordData] = useState({
     oldPassword: "",
@@ -91,12 +84,11 @@ const UserProfile = () => {
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   
   
-  const { activePickup, clearActivePickup } = usePickup(); // Kita gunakan juga dari context
+  const { activePickup, clearActivePickup } = usePickup();
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001"; // Sesuaikan dengan URL backend Anda
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
   useEffect(() => {
-        // PERBAIKAN: Gunakan state dari context jika ada, jika tidak, fetch dari API
         if (activePickup) {
             setActiveUserPickup(activePickup);
         } else {
@@ -129,7 +121,7 @@ const UserProfile = () => {
         const profilePromise = userAPI.getProfile();
         const pointsSummaryPromise = userAPI.getPoints();
         const recentHistoryPromise = userAPI.getRecentPointsHistory();
-        const addressPromise = addressAPI.getAll(); // <-- Panggil API alamat
+        const addressPromise = addressAPI.getAll();
 
         const [profileResponse, pointsSummaryResponse, recentHistoryResponse, addressResponse] = await Promise.all([
           profilePromise,
@@ -149,13 +141,12 @@ const UserProfile = () => {
         }
         localStorage.setItem("userData", JSON.stringify(profileResponse.data));
 
-        // Cari dan set alamat utama
         const allAddresses = addressResponse.data || [];
         const mainAddress = allAddresses.find(addr => addr.is_active) || allAddresses[0];
         if (mainAddress) {
             setPrimaryAddress({
                 ...mainAddress,
-                user_avatar: profileResponse.data.profile_picture_url // Sisipkan url avatar
+                user_avatar: profileResponse.data.profile_picture_url
             });
         }
 
@@ -187,7 +178,6 @@ const UserProfile = () => {
         await authAPI.logout();
       } catch (error) {
         console.error("Logout API error:", error);
-        // Tidak perlu menampilkan error ke user jika logout API gagal, yang penting token di client dihapus
       }
     }
 
@@ -195,7 +185,7 @@ const UserProfile = () => {
     
     localStorage.removeItem("authToken");
     localStorage.removeItem("userData");
-    window.dispatchEvent(new CustomEvent("authChange")); // Untuk update UI lain jika ada
+    window.dispatchEvent(new CustomEvent("authChange"));
     router.push("/");
   };
   
@@ -220,7 +210,7 @@ const UserProfile = () => {
         return;
     }
     try {
-        setIsLoading(true); // Atau state loading spesifik untuk save
+        setIsLoading(true); 
         const response = await userAPI.updateProfile(editFormData);
         setUserData(prev => ({ ...prev, ...editFormData }));
         localStorage.setItem("userData", JSON.stringify({ ...userData, ...editFormData }));
@@ -239,7 +229,7 @@ const UserProfile = () => {
   const handleProfilePictureChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        if (file.size > 5 * 1024 * 1024) {
             setError("Ukuran file maksimal 5MB.");
             setTimeout(() => setError(""), 3000);
             return;
@@ -270,14 +260,14 @@ const UserProfile = () => {
     formData.append("avatar", profilePictureFile);
 
     try {
-        setIsLoading(true); // Atau state loading spesifik
+        setIsLoading(true); 
         const response = await userAPI.uploadAvatar(formData);
         setUserData(prev => ({ ...prev, profile_picture_url: response.data.profile_picture_url }));
 
         setProfilePicturePreview(`${API_BASE_URL}${response.data.profile_picture_url}`);
         localStorage.setItem("userData", JSON.stringify({ ...userData, profile_picture_url: response.data.profile_picture_url }));
         setSuccessMessage(response.data.message || "Foto profil berhasil diunggah.");
-        setProfilePictureFile(null); // Reset file input
+        setProfilePictureFile(null);
         setTimeout(() => setSuccessMessage(""), 3000);
     } catch (err) {
         console.error("Gagal unggah foto profil:", err);
@@ -308,14 +298,14 @@ const UserProfile = () => {
     }
 
     try {
-        setIsLoading(true); // Atau state loading spesifik
+        setIsLoading(true);
         const response = await userAPI.changePassword({
             oldPassword: passwordData.oldPassword,
             newPassword: passwordData.newPassword,
             confirmNewPassword: passwordData.confirmNewPassword,
         });
         setPasswordSuccess(response.data.message || "Password berhasil diubah.");
-        setPasswordData({ oldPassword: "", newPassword: "", confirmNewPassword: "" }); // Reset form
+        setPasswordData({ oldPassword: "", newPassword: "", confirmNewPassword: "" });
         setTimeout(() => {
             setShowPasswordModal(false);
             setPasswordSuccess("");
@@ -329,7 +319,7 @@ const UserProfile = () => {
   };
 
 
-  if (isLoading && !userData) { // Tampilkan loader utama jika belum ada data sama sekali
+  if (isLoading && !userData) {
     return (
       <div className="flex justify-center items-center min-h-screen pt-20 bg-gray-100">
         <PulseLoader color="#D93D41" loading={true} size={15} />
@@ -352,7 +342,7 @@ const UserProfile = () => {
     );
   }
   
-  if (!userData && !isLoading) { // Jika tidak loading dan tidak ada user data (setelah fetch)
+  if (!userData && !isLoading) {
     return (
         <div className="flex flex-col justify-center items-center min-h-screen pt-20 bg-gray-100 text-center px-4">
             <FaRegSadTear className="text-6xl text-gray-400 mx-auto mb-5" />
@@ -583,7 +573,6 @@ const UserProfile = () => {
                         <button 
                             onClick={() => {
                                 setIsEditMode(false);
-                                // Reset form ke data asli jika batal
                                 setEditFormData({
                                     first_name: userData?.first_name || "",
                                     last_name: userData?.last_name || "",
@@ -686,7 +675,7 @@ const UserProfile = () => {
                         <button 
                             type="button" 
                             onClick={() => {setShowPasswordModal(false); setPasswordError(''); setPasswordSuccess('');}}
-                            disabled={isLoading && passwordSuccess === ""} // disable if loading and not yet success
+                            disabled={isLoading && passwordSuccess === ""}
                             className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm disabled:opacity-50"
                         >
                             Batal

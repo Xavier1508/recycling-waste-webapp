@@ -36,7 +36,6 @@ const AddressSelectionModal = ({ isOpen, onClose, addresses, onSelectAddress, cu
               key={addr.address_id}
               onClick={() => { onSelectAddress(addr); onClose(); }}
               className={`p-3 border rounded-lg cursor-pointer hover:bg-gray-100 transition-colors ${
-                // Periksa apakah addr.address_id ada sebelum membandingkan
                 currentSelectedAddressId && addr.address_id === currentSelectedAddressId 
                 ? 'border-2 border-[#d93d41] bg-red-50 shadow-md' 
                 : 'border-gray-300'
@@ -84,10 +83,8 @@ const ArrangePickup = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const router = useRouter();
 
-  // Gunakan context untuk pickup management
   const { startNewPickup } = usePickup();
 
-  // Mapping kode kategori ke gambar
   const categoryImages = { 
     ORG: Organik, 
     ANORG: Anorganik, 
@@ -186,13 +183,10 @@ const ArrangePickup = () => {
     try {
       const response = await pickupAPI.createRequest(formData);
       
-      // Panggil fungsi dari context untuk memulai proses pickup
       startNewPickup(response.data.pickup_id);
       
-      // Beri notifikasi dan reset form, TANPA redirect
       alert("Permintaan penjemputan berhasil dibuat! Status pesanan Anda ada di banner bawah.");
-      
-      // Reset form setelah berhasil
+
       setSelectedTrashTypes([]);
       setPhoto(null);
       setPhotoPreview(null);

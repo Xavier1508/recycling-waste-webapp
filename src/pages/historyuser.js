@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { PulseLoader } from "react-spinners";
 import History from "@/components/History";
-import Navbar from "@/components/Navbar"; // Tambahkan Navbar
-import styles from "@/style"; // Pastikan path ini benar
+import Navbar from "@/components/Navbar";
+import styles from "@/style";
 import { useRouter } from "next/router";
 
-const HistoryUserPage = () => { // Ubah nama komponen menjadi PascalCase
+const HistoryUserPage = () => {
   const [pageLoading, setPageLoading] = useState(true);
   const router = useRouter();
 
@@ -16,7 +16,6 @@ const HistoryUserPage = () => { // Ubah nama komponen menjadi PascalCase
     } else {
       setPageLoading(false);
     }
-    // Simulasi loading halaman
     const timer = setTimeout(() => setPageLoading(false), 500);
     return () => clearTimeout(timer);
   }, [router]);
@@ -41,13 +40,11 @@ const HistoryUserPage = () => { // Ubah nama komponen menjadi PascalCase
 
   return (
     <div className="bg-gray-100 min-h-screen">
-        {/* Navbar Fixed */}
         <div className={`${styles.paddingX} ${styles.flexCenter} fixed top-0 left-0 right-0 z-30 bg-transparent`}>
             <div className={`${styles.boxWidth}`}>
                 <Navbar />
             </div>
         </div>
-        {/* Konten History dengan padding atas untuk Navbar */}
         <div className="pt-20 md:pt-24">
             <History />
         </div>
@@ -55,4 +52,4 @@ const HistoryUserPage = () => { // Ubah nama komponen menjadi PascalCase
   );
 };
 
-export default HistoryUserPage; // Gunakan nama komponen PascalCase
+export default HistoryUserPage;

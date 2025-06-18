@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { driverAPI } from "@/services/api"; // Nantinya kita akan buat driverAPI
+import { driverAPI } from "@/services/api";
 import { FaUserCircle, FaMapMarkedAlt, FaHistory, FaBell, FaStar } from "react-icons/fa";
 import { MdLogout, MdLocationOn } from "react-icons/md";
 import { PulseLoader } from "react-spinners";
 
-// Placeholder untuk Map, bisa diganti dengan komponen map asli nanti
 const MapPlaceholder = () => (
     <div className="w-full h-64 bg-gray-300 rounded-lg flex items-center justify-center">
         <p className="text-gray-500 font-semibold">Map Area (Integrasi Peta di sini)</p>
@@ -31,8 +30,6 @@ const DriverProfile = () => {
         const fetchDriverData = async () => {
             setIsLoading(true);
             try {
-                // Nantinya akan memanggil: const response = await driverAPI.getProfile();
-                // Untuk sekarang, kita gunakan data dari localStorage
                 const localData = JSON.parse(localStorage.getItem("userData"));
                 setDriverData(localData);
             } catch (err) {
@@ -161,7 +158,6 @@ const DriverProfile = () => {
                 </div>
             </div>
             
-             {/* Tombol Logout */}
             <div className="max-w-5xl mx-auto p-4 md:px-6 mt-8 mb-8">
                 <button onClick={handleLogout} className="w-full max-w-sm mx-auto bg-red-600 text-white py-3 px-6 rounded-full font-semibold hover:bg-red-700 transition flex items-center justify-center gap-2 text-lg shadow-md">
                     <MdLogout className="text-xl" /> Log Out

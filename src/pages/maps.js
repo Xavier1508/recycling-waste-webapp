@@ -4,9 +4,8 @@ import Navbar from '@/components/Navbar';
 import styles from '@/style';
 import { PulseLoader } from 'react-spinners';
 
-// Muat komponen peta secara dinamis untuk performa yang lebih baik
 const MapDisplay = dynamic(() => import('@/components/MapDisplay'), {
-    ssr: false, // Pastikan peta hanya dirender di sisi client
+    ssr: false,
     loading: () => (
         <div className="h-screen flex justify-center items-center">
             <PulseLoader color="#D93D41" />
@@ -17,13 +16,11 @@ const MapDisplay = dynamic(() => import('@/components/MapDisplay'), {
 const MapsPage = () => {
     return (
         <div className="bg-gray-100 min-h-screen">
-            {/* PERBAIKAN: Navbar diberi background putih agar tidak transparan */}
             <div className={`${styles.paddingX} ${styles.flexCenter} fixed top-0 left-0 right-0 z-30 bg-white shadow-md`}>
                 <div className={`${styles.boxWidth}`}>
                     <Navbar />
                 </div>
             </div>
-            {/* Beri padding atas agar konten tidak tertutup Navbar */}
             <div className="pt-24">
                 <MapDisplay />
             </div>

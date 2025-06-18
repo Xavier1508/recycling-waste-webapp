@@ -1,6 +1,3 @@
-// File: pages/DriverProfile.jsx
-// Versi terintegrasi dengan semua perubahan
-
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -11,8 +8,9 @@ import { FaUserCircle, FaMapMarkedAlt, FaHistory, FaBell, FaStar, FaWallet, FaHe
 import { MdLogout } from "react-icons/md";
 import { PulseLoader } from "react-spinners";
 import OfferNotificationModal from '@/components/OfferNotificationModal';
+import UpdateWeightModal from '@/components/UpdateWeightModal';
+import { FaWeightHanging } from 'react-icons/fa';
 
-// --- Muat komponen peta secara dinamis ---
 const DashboardMap = dynamic(() => import('@/components/DashboardMap'), {
     ssr: false,
     loading: () => <div className="w-full h-full bg-gray-300 rounded-lg flex items-center justify-center min-h-[250px]"><PulseLoader size={8} color="#7c1215" /></div>
@@ -29,7 +27,7 @@ const formatVehicleType = (type) => {
     return vehicleMap[type] || type;
 };
 
-const ActiveTaskCard = ({ task, onComplete }) => {
+const ActiveTaskCard = ({ task, onComplete, onUpdateWeight }) => {
     if (!task) return null;
     return (
         <div className="mb-6 bg-yellow-100 border-l-4 border-yellow-500 p-6 rounded-xl shadow-lg">
@@ -40,6 +38,13 @@ const ActiveTaskCard = ({ task, onComplete }) => {
                 <Link href={`/track/${task.pickup_id}`} className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
                     Lihat Rute di Peta
                 </Link>
+                {/* --- TOMBOL BARU UNTUK UPDATE BERAT --- */}
+                <button 
+                    onClick={() => onUpdateWeight(task)}
+                    className="bg-orange-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
+                >
+                    <FaWeightHanging /> Update Berat
+                </button>
                 <button 
                     onClick={() => onComplete(task.pickup_id)} 
                     className="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors"
@@ -51,11 +56,9 @@ const ActiveTaskCard = ({ task, onComplete }) => {
     );
 };
 
-// --- PERBAIKAN: Komponen Tombol Lihat Peta yang Cerdas & Stylish ---
 const ViewMapButton = ({ activeTask, driverData }) => {
     const hasLocation = driverData?.current_latitude && driverData?.current_longitude;
 
-    // Skenario 1: Ada tugas aktif
     if (activeTask) {
         return (
             <Link href={`/track/${activeTask.pickup_id}`} legacyBehavior>
@@ -69,7 +72,6 @@ const ViewMapButton = ({ activeTask, driverData }) => {
         );
     }
 
-    // Skenario 2: Tidak ada tugas, TAPI lokasi driver ada
     if (hasLocation) {
         return (
             <Link 
@@ -93,7 +95,6 @@ const ViewMapButton = ({ activeTask, driverData }) => {
         );
     }
 
-    // Skenario 3: Tidak ada tugas DAN tidak ada lokasi (tombol non-aktif)
     return (
         <div className="block cursor-not-allowed opacity-60 group">
              <div className="nav-button-container">
@@ -115,6 +116,10 @@ const DriverProfile = () => {
     const router = useRouter();
     const locationIntervalRef = useRef(null);
 
+    const [isWeightModalOpen, setIsWeightModalOpen] = useState(false);
+    const [selectedTaskForWeight, setSelectedTaskForWeight] = useState(null);
+    const [isSubmittingWeight, setIsSubmittingWeight] = useState(false);
+
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
 
     const fetchInitialData = useCallback(async () => {
@@ -123,7 +128,7 @@ const DriverProfile = () => {
             const [profileRes, statsRes, activeTaskRes] = await Promise.all([
                 driverAPI.getProfile(),
                 driverAPI.getStats(),
-                driverAPI.getActiveTask() // <-- Sekarang fungsi ini ada!
+                driverAPI.getActiveTask()
             ]);
 
             const profileData = profileRes.data;
@@ -169,7 +174,6 @@ const DriverProfile = () => {
         };
     }, [fetchInitialData, router]);
 
-    // useEffect untuk mengirim update lokasi
     useEffect(() => {
         if (isOnline && driverData) {
             locationIntervalRef.current = setInterval(() => {
@@ -213,7 +217,7 @@ const DriverProfile = () => {
             const response = await offerAPI.accept(currentOffer.offer_id);
             alert(response.data.message);
             setCurrentOffer(null);
-            fetchInitialData(); // Panggil lagi untuk refresh state
+            fetchInitialData(); 
         } catch (err) {
             console.error("Gagal menerima tawaran:", err);
             alert(err.response?.data?.error || "Gagal menerima tawaran.");
@@ -233,7 +237,35 @@ const DriverProfile = () => {
             setCurrentOffer(null);
         }
     };
-    
+
+    const handleOpenWeightModal = async (task) => {
+        try {
+            const res = await pickupAPI.getDetails(task.pickup_id);
+            
+            setSelectedTaskForWeight(res.data); 
+            setIsWeightModalOpen(true);
+        } catch (err) {
+            console.error("Gagal mengambil detail item pickup:", err);
+            alert("Gagal memuat detail item sampah.");
+        }
+    };
+
+    const handleSubmitWeight = async (weightData) => {
+        if (!selectedTaskForWeight?.pickup_id) return;
+        setIsSubmittingWeight(true);
+        try {
+            await pickupAPI.updatePickupItems(selectedTaskForWeight.pickup_id, weightData);
+            alert("Berat sampah berhasil diperbarui!");
+            setIsWeightModalOpen(false);
+            setSelectedTaskForWeight(null);
+        } catch (err) {
+            console.error("Gagal update berat:", err);
+            alert(err.response?.data?.error || "Gagal menyimpan berat sampah.");
+        } finally {
+            setIsSubmittingWeight(false);
+        }
+    };
+
     const handleCompleteTask = async (pickupId) => {
         if (!confirm("Apakah Anda yakin sudah berada di TPA dan ingin menyelesaikan tugas ini?")) return;
         try {
@@ -279,7 +311,7 @@ const DriverProfile = () => {
 
             {/* KARTU TUGAS AKTIF */}
             <div className="p-4 md:px-6">
-                <ActiveTaskCard task={activeTask} onComplete={handleCompleteTask} />
+                <ActiveTaskCard task={activeTask} onComplete={handleCompleteTask} onUpdateWeight={handleOpenWeightModal} />
             </div>
 
             <div className="p-4 md:p-6 pt-0 grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -390,6 +422,14 @@ const DriverProfile = () => {
                 onDecline={handleDeclineOffer}
             />
             
+            <UpdateWeightModal 
+                isOpen={isWeightModalOpen}
+                onClose={() => setIsWeightModalOpen(false)}
+                onSubmit={handleSubmitWeight}
+                task={selectedTaskForWeight}
+                isSubmitting={isSubmittingWeight}
+            />
+
             <style jsx>{`
                 .nav-button-container{display:flex;flex-direction:column;align-items:center;justify-content:center;background-color:#f0e2e2;width:100%;height:6rem;border-radius:0.5rem;box-shadow:inset 0 2px 4px 0 rgba(0,0,0,0.05);transition:background-color .2s}
                 .group:hover .nav-button-container{background-color:#e2bbbb}

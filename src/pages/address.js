@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { PulseLoader } from "react-spinners";
 import SavedAddress from "@/components/SavedAddress";
-import Navbar from "@/components/Navbar"; // Navbar akan ditampilkan di sini
-import styles from "@/style"; // Pastikan path ini benar
+import Navbar from "@/components/Navbar";
+import styles from "@/style";
 import { useRouter } from "next/router";
 
-const AddressPage = () => { // Ubah nama komponen menjadi PascalCase
-  const [pageLoading, setPageLoading] = useState(true); // Loading untuk proteksi route
+const AddressPage = () => { 
+  const [pageLoading, setPageLoading] = useState(true); 
   const router = useRouter();
 
   useEffect(() => {
-    // Cek token untuk proteksi route sederhana
     const token = localStorage.getItem("authToken");
     if (!token) {
-      router.replace("/login"); // Arahkan ke login jika tidak ada token
+      router.replace("/login");
     } else {
       setPageLoading(false);
     }

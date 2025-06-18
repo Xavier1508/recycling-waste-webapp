@@ -1,4 +1,3 @@
-// Kode lengkap untuk file baru components/FeedbackModal.jsx
 import React, { useState } from 'react';
 import { FaStar, FaRegStar, FaPaperPlane } from 'react-icons/fa';
 import { PulseLoader } from 'react-spinners';

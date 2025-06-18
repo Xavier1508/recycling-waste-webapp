@@ -8,13 +8,11 @@ import { PulseLoader } from "react-spinners";
 import Image from 'next/image';
 import dynamic from "next/dynamic";
 
-// --- PERBAIKAN KRITIS: Gunakan dynamic import untuk komponen peta ---
 const PinPointMap = dynamic(() => import("./PinPointMap"), { 
     ssr: false,
     loading: () => <div className="h-[50vh] w-full flex justify-center items-center bg-gray-200 rounded-md"><p>Memuat Peta...</p></div>
 });
 
-// Komponen Form terpisah untuk better organization dengan autocomplete
 const AddressForm = ({ onSave, onCancel, existingAddress, isSaving, formError }) => {
   const [formData, setFormData] = useState({
     alias_name: "", 
@@ -254,7 +252,6 @@ const AddressForm = ({ onSave, onCancel, existingAddress, isSaving, formError })
   );
 };
 
-// --- PENAMBAHAN: FUNGSI UNTUK PETA STATIS DARI LOCATIONIQ ---
 const getStaticMapUrl = (latitude, longitude) => {
     if (!latitude || !longitude) return null;
     const apiKey = process.env.NEXT_PUBLIC_LOCATIONIQ_TOKEN;
@@ -273,7 +270,6 @@ const SavedAddress = () => {
   const [success, setSuccess] = useState("");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   
-  // PERBAIKAN: State management form yang lebih sederhana
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
   const [formError, setFormError] = useState("");
@@ -286,7 +282,6 @@ const SavedAddress = () => {
     try {
       const response = await addressAPI.getAll();
       setAddresses(response.data || []);
-      // Jika tidak ada alamat, otomatis tampilkan form tambah
       if (response.data.length === 0) {
         setIsFormVisible(true);
       }
@@ -319,7 +314,6 @@ const SavedAddress = () => {
     
     try {
       let responseMessage = "";
-      // Payload sekarang sudah berisi latitude dan longitude dari form
       const payload = {
         alias_name: formData.alias_name,
         address_text: formData.address_text,
@@ -358,24 +352,21 @@ const SavedAddress = () => {
 
   const handleDelete = async (addressId) => {
     if (window.confirm("Apakah Anda yakin ingin menghapus alamat ini?")) {
-      // Optimistik UI: hapus dulu dari state, lalu panggil API
       const originalAddresses = [...addresses];
       setAddresses(prev => prev.filter(addr => addr.address_id !== addressId));
       try {
         await addressAPI.delete(addressId);
         setSuccess("Alamat berhasil dihapus.");
-        // Jika alamat yang dihapus sedang diedit, tutup form
         if(editingAddress?.address_id === addressId) resetForm();
       } catch (err) {
         console.error("Gagal menghapus alamat:", err);
         setError(err.response?.data?.error || "Gagal menghapus alamat.");
-        setAddresses(originalAddresses); // Kembalikan jika gagal
+        setAddresses(originalAddresses);
       }
     }
   };
 
   const handleSetDefault = async (addressId) => {
-    // Optimistik UI
     const originalAddresses = addresses.map(addr => ({...addr}));
     setAddresses(prev => prev.map(addr => ({
         ...addr,
@@ -388,12 +379,12 @@ const SavedAddress = () => {
     } catch (err) {
       console.error("Gagal menjadikan alamat utama:", err);
       setError(err.response?.data?.error || "Gagal menjadikan alamat utama.");
-      setAddresses(originalAddresses); // Kembalikan jika gagal
+      setAddresses(originalAddresses);
     }
   };
 
   const showNewAddressForm = () => {
-    setEditingAddress(null); // Pastikan mode edit mati
+    setEditingAddress(null);
     setIsFormVisible(true);
     setFormError("");
     setSuccess("");

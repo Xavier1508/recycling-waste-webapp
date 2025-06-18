@@ -1,60 +1,239 @@
-# Recycling and Waste Collection Web App
+# **Trash Trade Web Application**
 
-This web application, built with Next.js, Tailwind CSS, and Framer Motion, provides a user-friendly interface for managing recycling and waste collection services. Whether you're involved in solid waste, liquid waste, or general collection services, this app streamlines the process and enhances the user experience.
+## **Project Overview**
 
-## Features
+**Trash Trade** is a full-stack web application designed to create a real-time ecosystem connecting users with waste collection drivers. The platform aims to streamline the recycling process, making it more accessible and rewarding. It features a complete workflow from pickup requests and live driver tracking to a gamified points and rewards system, encouraging environmental participation.
 
-- **Responsive Design:** The application is designed to work seamlessly across various devices and screen sizes, ensuring a consistent and user-friendly experience.
+This project is built on a modern technology stack, featuring a **Next.js** frontend and a **Node.js (Express)** backend, with real-time communication powered by **Socket.IO**.
 
-- **Tailwind CSS:** The project utilizes Tailwind CSS for styling, providing a utility-first approach to easily customize the appearance of the application.
+-----
 
-- **Framer Motion Animations:** Framer Motion is integrated to add smooth and visually appealing animations, enhancing the overall interactivity of the web app.
+## **Key Features**
 
-- **Modular Components:** The project is structured using Next.js, allowing for the creation of modular components and pages, making it easy to maintain and scale the application.
+  * **End-to-End Pickup Lifecycle:** A complete, real-time workflow for users to request waste pickups, receive driver assignments, track the driver's location, and confirm completion.
+  * **Dual-Role User System:** Robust authentication and authorization system distinguishing between **General Users** and **Drivers**, each with their own dedicated dashboard and functionalities.
+  * **Gamified Points & Rewards System:** Users earn points for each completed pickup, which can be redeemed for items in a rewards catalog, adding an incentive layer to recycling.
+  * **Real-time Notifications & Tracking:** Utilizes **WebSockets (Socket.IO)** to push instant updates to the client, including driver assignments, status changes, and live location data, eliminating the need for manual refreshes.
+  * **Interactive Map Integration:** Leverages a mapping service (e.g., Google Maps) for visualizing and tracking driver locations, providing transparency to the user.
+  * **Feedback and Rating System:** Upon task completion, users can rate and provide feedback for the driver, fostering a trustworthy and reliable community.
+  * **Responsive User Interface:** Built with **Tailwind CSS**, the UI is fully responsive and provides an optimal user experience across desktops, tablets, and mobile devices.
 
-## Getting Started
+-----
 
-Follow these steps to set up the project locally:
+## **Technology Stack**
 
-1. **Clone the Repository:**
+| Category      | Technology                                                              |
+| :------------ | :---------------------------------------------------------------------- |
+| **Frontend** | `Next.js`, `React`, `Tailwind CSS`, `Framer Motion`, `Socket.IO Client`   |
+| **Backend** | `Node.js`, `Express.js`, `Socket.IO`, `Sequelize` (ORM), `JWT`            |
+| **Database** | `MySQL` (or any other SQL dialect supported by Sequelize)               |
 
-   ```bash
-   git clone https://github.com/Xavier1508/recycling-waste-webapp.git
-   cd recycling-waste-app
-   ```
+-----
 
-2. **Install Dependencies:**
+## **Getting Started**
 
-   ```bash
-   npm install
-   npm install react-icons
-   ```
+Follow these instructions to set up and run the project on your local machine.
 
-3. **Run the Development Server:**
-   ```bash
-   npm run dev
-   ```
-   The application will be accessible at `http://localhost:3000`.
+### **Prerequisites**
 
-## Usage
+Ensure you have the following software installed:
 
-- Access the different sections of the web app using the navigation menu.
-- Explore the intuitive user interface to manage recycling services, solid waste collection, liquid waste collection, and other collection services effortlessly.
+  * **Node.js** (v16.x or newer recommended)
+  * **NPM** (or Yarn)
+  * A running **SQL Database Server** (e.g., MySQL via XAMPP, WAMP, or a standalone server)
 
-## Contributing
+### **Installation and Setup**
 
-If you'd like to contribute to the project, please follow these steps:
+1.  **Clone the Repository**
 
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix: `git checkout -b feature-name`.
-3. Commit your changes: `git commit -m 'Add new feature'`.
-4. Push to the branch: `git push origin feature-name`.
-5. Open a pull request.
+    ```bash
+    git clone https://github.com/Xavier1508/recycling-waste-webapp.git
+    cd recycling-waste-webapp
+    ```
 
-## License
+2.  **Setup the Backend**
+    The backend powers the core logic, API, and database connections.
 
-This project is licensed under the [MIT License](LICENSE), which means you are free to use, modify, and distribute the code.
+    ```bash
+    # Navigate to the backend directory
+    cd backend
 
-## Acknowledgments
+    # Install dependencies
+    npm install
+    ```
 
-Special thanks to the open-source community, Next.js, Tailwind CSS, and Framer Motion for their fantastic tools and resources that made this project possible.
+    Next, create a `.env` file in the `/backend` directory by copying `.env.example` or creating it from scratch. Populate it with your local configuration:
+
+    ```env
+    # Database Connection
+    DB_HOST=localhost
+    DB_USER=your_db_user
+    DB_PASSWORD=your_db_password
+    DB_NAME=your_db_name
+
+    # JSON Web Token (JWT) Secret
+    JWT_SECRET=your_strong_secret_key
+    ```
+
+3.  **Initialize the Database**
+    This project includes a database schema file to set up all necessary tables.
+
+      * First, create a new, empty database in your SQL server with the name you specified for `DB_NAME`.
+      * Then, import the structure using the provided `database_structure.sql` file. You can use a tool like phpMyAdmin or run the following command in your terminal:
+        ```bash
+        # Make sure you are in the repository's root directory
+        mysql -u your_db_user -p your_db_name < database_structure.sql
+        ```
+
+4.  **Setup the Frontend**
+    The frontend serves the user interface.
+
+    ```bash
+    # Navigate back to the root project directory if you are in /backend
+    cd ..
+
+    # Install dependencies
+    npm install
+    ```
+
+    This project requires a **Maps Provider API Key** to render maps. Create a `.env.local` file in the project's **root** directory and add the following, replacing the placeholder with your actual key:
+
+    ```env
+    # Example for Google Maps API
+    NEXT_PUBLIC_MAPS_API_KEY=YOUR_API_KEY_HERE
+    ```
+
+    **Note:** The `NEXT_PUBLIC_` prefix is a Next.js convention to expose the variable safely to the browser.
+
+### **Running the Application**
+
+You must run two separate processes in **two separate terminal windows**.
+
+  * **Terminal 1: Start the Backend Server**
+
+    ```bash
+    # In the /backend directory
+    npm run dev
+    ```
+
+    The backend API will be available at `http://localhost:3001`.
+
+  * **Terminal 2: Start the Frontend Server**
+
+    ```bash
+    # In the root project directory
+    npm run dev
+    ```
+
+    The frontend will be accessible at `http://localhost:3000`.
+
+-----
+
+## **Local Testing Guide**
+
+To properly test the real-time interaction between a user and a driver, you need to simulate two concurrent sessions. The recommended approach is the **Two-Browser Technique**.
+
+1.  **User Session (Main Browser Window)**
+
+      * Open your primary browser (e.g., Chrome, Firefox).
+      * Navigate to `http://localhost:3000`.
+      * Register a new account and log in as a **General User**.
+
+2.  **Driver Session (Incognito/Private Window)**
+
+      * Open a new **Incognito** or **Private** window.
+      * Navigate to `http://localhost:3000` again.
+      * Register a new account (with a different email) and log in as a **Driver**.
+
+3.  **Test the Workflow**
+
+      * In the **User Session**, initiate a pickup request.
+      * Observe the **Driver Session** window. The new request should appear on the driver's dashboard in real-time.
+      * As the driver, accept the request. The status, notifications, and map on the user's screen will update automatically.
+      * Proceed through the entire workflow to test all features.
+
+-----
+
+## **Technical Deep Dive**
+
+\<details\>
+\<summary\>\<strong\>Project Structure Overview\</strong\>\</summary\>
+
+The repository is structured as a monorepo with a separate backend and a frontend-focused root.
+
+```
+/
+├── backend/                # Node.js, Express, Sequelize Backend
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   └── socketManager.js    # Core WebSocket logic
+├── components/             # Reusable React components for the frontend
+├── context/                # React Context providers (e.g., PickupContext)
+├── pages/                  # Next.js page routes
+├── services/               # API service functions (using Axios)
+├── lib/                    # Library/helper code (e.g., socket client setup)
+├── public/                 # Static assets
+└── database_structure.sql  # SQL file for database schema setup
+```
+
+\</details\>
+
+\<details\>
+\<summary\>\<strong\>Backend API Endpoint Highlights\</strong\>\</summary\>
+
+The backend exposes a RESTful API. Key routes include:
+
+  * **Authentication (`/api/auth`)**:
+      * `POST /register`: Create a new user or driver account.
+      * `POST /login`: Authenticate a user and return a JWT.
+      * `GET /me`: Get the profile of the currently logged-in user.
+  * **Pickups (`/api/pickups`)**:
+      * `POST /`: Create a new pickup request (User).
+      * `GET /driver`: Fetch available pickup requests (Driver).
+      * `POST /:id/accept`: Accept a pickup request (Driver).
+      * `POST /:id/complete`: Mark a pickup as complete (Driver).
+      * `POST /:id/feedback`: Submit feedback for a completed pickup (User).
+  * **User Data (`/api/user`)**:
+      * `GET /points`: Get the current point balance for the logged-in user.
+
+\</details\>
+
+\<details\>
+\<summary\>\<strong\>Real-time WebSocket Events\</strong\>\</summary\>
+
+Real-time communication is handled via Socket.IO. Key events include:
+
+  * **Server Emits (to Client)**:
+      * `new_pickup_request`: Sent to all available drivers when a new request is created.
+      * `pickup_accepted`: Sent to the specific user whose request was accepted.
+      * `pickup_completed`: Sent to the user when a driver completes the task, triggering the feedback modal.
+      * `points_updated`: Sent to the user after feedback submission to update their point total in real-time.
+      * `driver_location_update`: Sent to the user to update the driver's position on the map.
+  * **Client Emits (to Server)**:
+      * `join_driver_pool`: A driver client joins a room to listen for new requests.
+      * `update_location`: A driver client sends its new coordinates to the server.
+
+\</details\>
+
+-----
+
+## **Contributing**
+
+Contributions are welcome. Please follow standard open-source practices.
+
+1.  **Fork** the repository.
+2.  Create a new feature **branch** (`git checkout -b feature/YourFeature`).
+3.  **Commit** your changes (`git commit -m 'feat: Add some amazing feature'`).
+4.  **Push** to the branch (`git push origin feature/YourFeature`).
+5.  Open a **Pull Request**.
+
+## 📄 **License**
+
+This project is licensed under the [MIT License](https://www.google.com/search?q=LICENSE). You are free to use, modify, and distribute this code.
+
+## **Acknowledgements**
+
+This project was originally forked from murtazaghulam99 (https://github.com/murtazaghulam99/recycling-waste-webapp). While the initial project provided the foundational landing page, this version has been significantly expanded with a full backend, database integration, real-time features, a user authentication system, and a complete rewrite of the application logic to build the full-stack **Trash Trade** ecosystem.
+
+We are grateful to the original creator for providing the initial spark for this project.

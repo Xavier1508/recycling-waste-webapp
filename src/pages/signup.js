@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { PulseLoader } from "react-spinners";
-import SignUp from "@/components/SignUp"; // Menggunakan komponen SignUp.jsx
+import SignUp from "@/components/SignUp";
 
 const SignupPage = () => {
   const [loading, setLoading] = useState(true);
@@ -27,7 +27,7 @@ const SignupPage = () => {
           />
         </div>
       ) : (
-        <SignUp /> // Komponen SignUp akan menangani UI dan logika form
+        <SignUp />
       )}
     </div>
   );

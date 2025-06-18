@@ -1,0 +1,613 @@
+-- =================================================================================
+-- RECYCLE WASTE WEBBAPP - SKEMA DATABASE
+-- =================================================================================
+
+-- Membuat database jika belum ada dan menggunakannya
+CREATE DATABASE IF NOT EXISTS `recycle_waste_webapp`;
+USE `recycle_waste_webapp`;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: users
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(100) NOT NULL,
+  `phone_number` varchar(20) NOT NULL,
+  `first_name` varchar(50) NOT NULL,
+  `last_name` varchar(50) NOT NULL,
+  `password_hash` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `profile_picture_url` text DEFAULT NULL,
+  `role` enum('customer','driver','admin','tpa_operator') NOT NULL DEFAULT 'customer',
+  `account_status` enum('active','inactive','suspended','pending_verification') NOT NULL DEFAULT 'pending_verification',
+  `email_verified_at` timestamp NULL DEFAULT NULL,
+  `phone_verified_at` timestamp NULL DEFAULT NULL,
+  `last_login_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `phone_number` (`phone_number`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: addresses
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `addresses` (
+  `address_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `alias_name` varchar(100) DEFAULT NULL,
+  `address_text` text NOT NULL,
+  `city` varchar(100) NOT NULL,
+  `province` varchar(100) DEFAULT NULL,
+  `postal_code` varchar(20) NOT NULL,
+  `country` varchar(100) DEFAULT 'Indonesia',
+  `latitude` decimal(10,8) DEFAULT NULL,
+  `longitude` decimal(11,8) DEFAULT NULL,
+  `gmaps_place_id` varchar(255) DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`address_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `addresses_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: sessions
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `sessions` (
+  `session_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `expires_at` datetime NOT NULL,
+  PRIMARY KEY (`session_id`),
+  UNIQUE KEY `token` (`token`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `sessions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: trash_categories
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `trash_categories` (
+  `category_id` int(11) NOT NULL AUTO_INCREMENT,
+  `category_name` varchar(50) NOT NULL,
+  `category_code` varchar(10) NOT NULL,
+  `points_per_kg` int(11) NOT NULL DEFAULT 10,
+  `description` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`category_id`),
+  UNIQUE KEY `category_code` (`category_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: trash_pickup_requests
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `trash_pickup_requests` (
+  `pickup_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `address_id` int(11) NOT NULL,
+  `pickup_address_text` text NOT NULL,
+  `pickup_city` varchar(100) NOT NULL,
+  `pickup_postal_code` varchar(20) NOT NULL,
+  `pickup_latitude` decimal(10,8) DEFAULT NULL,
+  `pickup_longitude` decimal(11,8) DEFAULT NULL,
+  `requested_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `preferred_pickup_date` date DEFAULT NULL,
+  `preferred_pickup_time_slot` varchar(50) DEFAULT NULL,
+  `actual_pickup_time` timestamp NULL DEFAULT NULL,
+  `status` enum('requested','pending_assignment','assigned_to_driver','driver_en_route','arrived_at_location','picked_up','processing_at_facility','completed','cancelled_by_user','cancelled_by_system','failed') DEFAULT 'requested',
+  `cancellation_reason` text DEFAULT NULL,
+  `total_weight_kg` decimal(10,2) DEFAULT 0.00,
+  `estimated_volume_liters` decimal(10,2) DEFAULT NULL,
+  `total_points_earned` int(11) DEFAULT 0,
+  `driver_notes` text DEFAULT NULL,
+  `assigned_driver_id` int(11) DEFAULT NULL,
+  `assigned_vehicle_id` int(11) DEFAULT NULL,
+  `assigned_tpa_id` int(11) DEFAULT NULL,
+  `distance_km` decimal(10,2) DEFAULT NULL COMMENT 'Jarak total perjalanan driver untuk pickup ini',
+  `estimated_driver_fee` decimal(10,2) DEFAULT NULL COMMENT 'Estimasi bayaran untuk driver saat tugas ditawarkan',
+  `actual_driver_fee` decimal(10,2) DEFAULT NULL COMMENT 'Bayaran final untuk driver setelah tugas selesai',
+  `driver_code` varchar(50) DEFAULT NULL,
+  `profile_picture_url` text DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`pickup_id`),
+  UNIQUE KEY `driver_code` (`driver_code`),
+  KEY `user_id` (`user_id`),
+  KEY `address_id` (`address_id`),
+  KEY `assigned_driver_id` (`assigned_driver_id`),
+  KEY `assigned_vehicle_id` (`assigned_vehicle_id`),
+  KEY `assigned_tpa_id` (`assigned_tpa_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: trash_photos
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `trash_photos` (
+  `photo_id` int(11) NOT NULL AUTO_INCREMENT,
+  `request_id` int(11) NOT NULL,
+  `photo_url` text NOT NULL,
+  `taken_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `photo_type` enum('before_pickup','after_pickup','sorted') DEFAULT 'before_pickup',
+  PRIMARY KEY (`photo_id`),
+  KEY `request_id` (`request_id`),
+  CONSTRAINT `trash_photos_ibfk_1` FOREIGN KEY (`request_id`) REFERENCES `trash_pickup_requests` (`pickup_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: trash_items
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `trash_items` (
+  `item_id` int(11) NOT NULL AUTO_INCREMENT,
+  `pickup_id` int(11) NOT NULL,
+  `category_id` int(11) NOT NULL,
+  `weight_kg` decimal(10,2) NOT NULL,
+  `points_earned` int(11) NOT NULL,
+  `notes` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`item_id`),
+  KEY `pickup_id` (`pickup_id`),
+  KEY `category_id` (`category_id`),
+  CONSTRAINT `trash_items_ibfk_1` FOREIGN KEY (`pickup_id`) REFERENCES `trash_pickup_requests` (`pickup_id`) ON DELETE CASCADE,
+  CONSTRAINT `trash_items_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `trash_categories` (`category_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: points
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `points` (
+  `point_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `request_id` int(11) DEFAULT NULL,
+  `points_earned` int(11) NOT NULL,
+  `points_type` enum('pickup','bonus','referral','manual') DEFAULT 'pickup',
+  `description` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`point_id`),
+  KEY `user_id` (`user_id`),
+  KEY `request_id` (`request_id`),
+  CONSTRAINT `points_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `points_ibfk_2` FOREIGN KEY (`request_id`) REFERENCES `trash_pickup_requests` (`pickup_id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: catalog_items
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `catalog_items` (
+  `catalog_id` int(11) NOT NULL AUTO_INCREMENT,
+  `item_name` varchar(100) NOT NULL,
+  `item_type` enum('cash','voucher','grocery','tree_planting') NOT NULL,
+  `points_required` int(11) NOT NULL,
+  `item_value` decimal(10,2) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `image_url` text DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `stock_quantity` int(11) DEFAULT -1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`catalog_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: point_redemptions
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `point_redemptions` (
+  `redeem_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `catalog_id` int(11) DEFAULT NULL,
+  `points_redeemed` int(11) NOT NULL,
+  `reward_type` enum('cash','voucher','grocery','tree_planting') NOT NULL,
+  `reward_value` decimal(10,2) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `status` enum('pending','approved','completed','cancelled') DEFAULT 'pending',
+  `redeemed_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `processed_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`redeem_id`),
+  KEY `user_id` (`user_id`),
+  KEY `fk_redemption_catalog` (`catalog_id`),
+  CONSTRAINT `point_redemptions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `point_redemptions_ibfk_2` FOREIGN KEY (`catalog_id`) REFERENCES `catalog_items` (`catalog_id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: pickup_history
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `pickup_history` (
+  `history_id` int(11) NOT NULL AUTO_INCREMENT,
+  `pickup_id` int(11) NOT NULL,
+  `status_from` enum('requested','picked_up','cancelled') DEFAULT NULL,
+  `status_to` enum('requested','picked_up','cancelled') DEFAULT NULL,
+  `changed_by` varchar(50) DEFAULT NULL,
+  `change_reason` text DEFAULT NULL,
+  `changed_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`history_id`),
+  KEY `pickup_id` (`pickup_id`),
+  CONSTRAINT `pickup_history_ibfk_1` FOREIGN KEY (`pickup_id`) REFERENCES `trash_pickup_requests` (`pickup_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: vehicles
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `vehicles` (
+  `vehicle_id` int(11) NOT NULL AUTO_INCREMENT,
+  `license_plate` varchar(20) NOT NULL,
+  `vehicle_type` enum('motorcycle_box','small_truck','medium_truck','bicycle_cart') NOT NULL,
+  `brand` varchar(50) DEFAULT NULL,
+  `model` varchar(50) DEFAULT NULL,
+  `year_manufactured` year(4) DEFAULT NULL,
+  `capacity_kg` decimal(10,2) DEFAULT NULL,
+  `capacity_volume_liters` decimal(10,2) DEFAULT NULL,
+  `status` enum('operational','maintenance','out_of_service') DEFAULT 'operational',
+  `current_driver_id` int(11) DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`vehicle_id`),
+  UNIQUE KEY `license_plate` (`license_plate`),
+  KEY `current_driver_id` (`current_driver_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: drivers
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `drivers` (
+  `driver_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `license_number` varchar(50) NOT NULL,
+  `license_expiry_date` date NOT NULL,
+  `vehicle_id` int(11) DEFAULT NULL,
+  `availability_status` enum('available','on_pickup','offline','on_break') DEFAULT 'offline',
+  `current_latitude` decimal(10,8) DEFAULT NULL,
+  `current_longitude` decimal(11,8) DEFAULT NULL,
+  `last_location_update` timestamp NULL DEFAULT NULL,
+  `rating_average` decimal(3,2) DEFAULT 0.00,
+  `total_ratings` int(11) DEFAULT 0,
+  `is_approved` tinyint(1) DEFAULT 0,
+  `approved_by_admin_id` int(11) DEFAULT NULL,
+  `approved_at` timestamp NULL DEFAULT NULL,
+  `notes_admin` text DEFAULT NULL,
+  `wallet_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`driver_id`),
+  UNIQUE KEY `user_id` (`user_id`),
+  UNIQUE KEY `license_number` (`license_number`),
+  UNIQUE KEY `wallet_id` (`wallet_id`),
+  KEY `vehicle_id` (`vehicle_id`),
+  KEY `approved_by_admin_id` (`approved_by_admin_id`),
+  CONSTRAINT `drivers_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `drivers_ibfk_2` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles` (`vehicle_id`) ON DELETE SET NULL,
+  CONSTRAINT `drivers_ibfk_3` FOREIGN KEY (`approved_by_admin_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: disposal_sites
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `disposal_sites` (
+  `tpa_id` int(11) NOT NULL AUTO_INCREMENT,
+  `site_name` varchar(150) NOT NULL,
+  `operator_user_id` int(11) DEFAULT NULL,
+  `address_text` text NOT NULL,
+  `city` varchar(100) NOT NULL,
+  `province` varchar(100) DEFAULT NULL,
+  `postal_code` varchar(20) NOT NULL,
+  `latitude` decimal(10,8) NOT NULL,
+  `longitude` decimal(11,8) NOT NULL,
+  `contact_person` varchar(100) DEFAULT NULL,
+  `contact_phone` varchar(20) DEFAULT NULL,
+  `operating_hours` varchar(255) DEFAULT NULL,
+  `accepted_trash_categories` text DEFAULT NULL,
+  `capacity_ton_per_day` decimal(10,2) DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`tpa_id`),
+  KEY `operator_user_id` (`operator_user_id`),
+  CONSTRAINT `disposal_sites_ibfk_1` FOREIGN KEY (`operator_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: pickup_ratings
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `pickup_ratings` (
+  `rating_id` int(11) NOT NULL AUTO_INCREMENT,
+  `pickup_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL COMMENT 'Pengguna yang memberikan rating',
+  `driver_id` int(11) NOT NULL COMMENT 'Driver yang menerima rating',
+  `overall_rating` tinyint(1) NOT NULL COMMENT 'Rating bintang (1-5)',
+  `punctuality_rating` tinyint(1) DEFAULT NULL COMMENT 'Rating ketepatan waktu (opsional)',
+  `service_rating` tinyint(1) DEFAULT NULL COMMENT 'Rating pelayanan (opsional)',
+  `comment` text DEFAULT NULL COMMENT 'Komentar atau kritik & saran dari user',
+  `tip_amount` decimal(10,2) DEFAULT 0.00 COMMENT 'Jumlah tip yang diberikan',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`rating_id`),
+  UNIQUE KEY `pickup_id_unique` (`pickup_id`) COMMENT 'Satu pickup hanya bisa memiliki satu rating',
+  KEY `fk_rating_user` (`user_id`),
+  KEY `fk_rating_driver` (`driver_id`),
+  CONSTRAINT `fk_rating_driver` FOREIGN KEY (`driver_id`) REFERENCES `drivers` (`driver_id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rating_pickup` FOREIGN KEY (`pickup_id`) REFERENCES `trash_pickup_requests` (`pickup_id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_rating_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: driver_wallets
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `driver_wallets` (
+  `wallet_id` int(11) NOT NULL AUTO_INCREMENT,
+  `driver_id` int(11) NOT NULL,
+  `balance` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `last_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`wallet_id`),
+  UNIQUE KEY `driver_id` (`driver_id`),
+  CONSTRAINT `driver_wallets_ibfk_1` FOREIGN KEY (`driver_id`) REFERENCES `drivers` (`driver_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: wallet_transactions
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `wallet_transactions` (
+  `transaction_id` int(11) NOT NULL AUTO_INCREMENT,
+  `wallet_id` int(11) NOT NULL,
+  `pickup_id` int(11) DEFAULT NULL,
+  `amount` decimal(15,2) NOT NULL,
+  `transaction_type` enum('credit_pickup','credit_tip','debit_withdrawal','correction_add','correction_subtract','bonus') NOT NULL,
+  `description` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`transaction_id`),
+  KEY `wallet_id` (`wallet_id`),
+  KEY `pickup_id` (`pickup_id`),
+  CONSTRAINT `wallet_transactions_ibfk_1` FOREIGN KEY (`wallet_id`) REFERENCES `driver_wallets` (`wallet_id`) ON DELETE CASCADE,
+  CONSTRAINT `wallet_transactions_ibfk_2` FOREIGN KEY (`pickup_id`) REFERENCES `trash_pickup_requests` (`pickup_id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: notifications
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `notifications` (
+  `notification_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `title` varchar(150) NOT NULL,
+  `message` text NOT NULL,
+  `notification_type` enum('new_pickup_offer','pickup_accepted','driver_en_route','pickup_completed','pickup_cancelled','system_alert','wallet_credit') NOT NULL,
+  `related_pickup_id` int(11) DEFAULT NULL,
+  `is_read` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`notification_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: driver_routes
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `driver_routes` (
+  `route_id` int(11) NOT NULL AUTO_INCREMENT,
+  `driver_id` int(11) NOT NULL,
+  `assigned_tpa_id` int(11) NOT NULL,
+  `route_status` enum('pending','in_progress','completed','cancelled') NOT NULL DEFAULT 'pending',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`route_id`),
+  KEY `driver_id` (`driver_id`),
+  KEY `assigned_tpa_id` (`assigned_tpa_id`),
+  CONSTRAINT `driver_routes_ibfk_1` FOREIGN KEY (`driver_id`) REFERENCES `drivers` (`driver_id`) ON DELETE CASCADE,
+  CONSTRAINT `driver_routes_ibfk_2` FOREIGN KEY (`assigned_tpa_id`) REFERENCES `disposal_sites` (`tpa_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: route_pickups
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `route_pickups` (
+  `route_pickup_id` int(11) NOT NULL AUTO_INCREMENT,
+  `route_id` int(11) NOT NULL,
+  `pickup_id` int(11) NOT NULL,
+  `pickup_order` int(11) NOT NULL,
+  `status` enum('pending','completed','skipped') NOT NULL DEFAULT 'pending',
+  PRIMARY KEY (`route_pickup_id`),
+  UNIQUE KEY `route_pickup_unique` (`route_id`,`pickup_id`),
+  KEY `pickup_id` (`pickup_id`),
+  CONSTRAINT `route_pickups_ibfk_1` FOREIGN KEY (`route_id`) REFERENCES `driver_routes` (`route_id`) ON DELETE CASCADE,
+  CONSTRAINT `route_pickups_ibfk_2` FOREIGN KEY (`pickup_id`) REFERENCES `trash_pickup_requests` (`pickup_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------------------------
+-- Tabel: pickup_offers
+-- ---------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `pickup_offers` (
+  `offer_id` int(11) NOT NULL AUTO_INCREMENT,
+  `pickup_id` int(11) NOT NULL,
+  `driver_id` int(11) NOT NULL,
+  `offer_status` enum('sent','seen','accepted','rejected','timed_out') NOT NULL DEFAULT 'sent',
+  `offered_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `expires_at` timestamp NULL DEFAULT NULL,
+  `responded_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`offer_id`),
+  UNIQUE KEY `offer_per_pickup_per_driver` (`pickup_id`,`driver_id`),
+  KEY `driver_id` (`driver_id`),
+  CONSTRAINT `pickup_offers_ibfk_1` FOREIGN KEY (`pickup_id`) REFERENCES `trash_pickup_requests` (`pickup_id`) ON DELETE CASCADE,
+  CONSTRAINT `pickup_offers_ibfk_2` FOREIGN KEY (`driver_id`) REFERENCES `drivers` (`driver_id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- =================================================================================
+-- PROCEDURES & FUNCTIONS
+-- =================================================================================
+
+-- ---------------------------------------------------------------------------------
+-- Procedure: CalculatePickupPoints
+-- ---------------------------------------------------------------------------------
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `CalculatePickupPoints`(IN `pickup_id_param` INT)
+BEGIN
+    DECLARE total_points_calculated INT DEFAULT 0;
+    DECLARE total_weight_calculated DECIMAL(10, 2) DEFAULT 0.00;
+
+    SELECT 
+        COALESCE(SUM(ti.weight_kg * tc.points_per_kg), 0),
+        COALESCE(SUM(ti.weight_kg), 0)
+    INTO 
+        total_points_calculated, 
+        total_weight_calculated
+    FROM 
+        trash_items ti
+    JOIN 
+        trash_categories tc ON ti.category_id = tc.category_id
+    WHERE 
+        ti.pickup_id = pickup_id_param;
+
+    UPDATE trash_pickup_requests
+    SET 
+        total_points_earned = total_points_calculated,
+        total_weight_kg = total_weight_calculated
+    WHERE 
+        pickup_id = pickup_id_param;
+END$$
+DELIMITER ;
+
+-- ---------------------------------------------------------------------------------
+-- Procedure: CalculateDriverFeeAndDistance
+-- ---------------------------------------------------------------------------------
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `CalculateDriverFeeAndDistance`(IN `pickup_id_param` INT, IN `driver_id_param` INT)
+BEGIN
+    DECLARE driver_lat, driver_lon, user_lat, user_lon, tpa_lat, tpa_lon DECIMAL(11, 8);
+    DECLARE total_weight, distance_to_user, distance_to_tpa, total_distance DECIMAL(10, 2);
+    DECLARE base_fee, distance_rate, weight_rate, final_fee DECIMAL(10, 2);
+
+    SET base_fee = 5000.00;
+    SET distance_rate = 2500.00;
+    SET weight_rate = 500.00;
+
+    SELECT d.current_latitude, d.current_longitude INTO driver_lat, driver_lon
+    FROM drivers d WHERE d.driver_id = driver_id_param;
+
+    SELECT tpr.pickup_latitude, tpr.pickup_longitude, tpr.total_weight_kg, ds.latitude, ds.longitude
+    INTO user_lat, user_lon, total_weight, tpa_lat, tpa_lon
+    FROM trash_pickup_requests tpr
+    JOIN disposal_sites ds ON tpr.assigned_tpa_id = ds.tpa_id
+    WHERE tpr.pickup_id = pickup_id_param;
+
+    IF driver_lat IS NOT NULL AND user_lat IS NOT NULL AND tpa_lat IS NOT NULL THEN
+        SET distance_to_user = 111.111 * DEGREES(ACOS(LEAST(1.0, COS(RADIANS(driver_lat))
+             * COS(RADIANS(user_lat))
+             * COS(RADIANS(driver_lon - user_lon))
+             + SIN(RADIANS(driver_lat))
+             * SIN(RADIANS(user_lat))));
+
+        SET distance_to_tpa = 111.111 * DEGREES(ACOS(LEAST(1.0, COS(RADIANS(user_lat))
+             * COS(RADIANS(tpa_lat))
+             * COS(RADIANS(user_lon - tpa_lon))
+             + SIN(RADIANS(user_lat))
+             * SIN(RADIANS(tpa_lat))));
+
+        SET total_distance = distance_to_user + distance_to_tpa;
+    ELSE
+        SET total_distance = 0;
+    END IF;
+
+    SET final_fee = base_fee + (total_distance * distance_rate) + (COALESCE(total_weight, 0) * weight_rate);
+
+    UPDATE trash_pickup_requests
+    SET
+        distance_km = total_distance,
+        estimated_driver_fee = final_fee,
+        assigned_driver_id = driver_id_param
+    WHERE pickup_id = pickup_id_param;
+END$$
+DELIMITER ;
+
+-- =================================================================================
+-- DATA INITIALIZATION
+-- =================================================================================
+
+-- Insert default trash categories
+INSERT INTO `trash_categories` (`category_name`, `category_code`, `points_per_kg`, `description`) VALUES
+('Organic', 'ORG', 5, 'Sampah organik seperti sisa makanan, daun, dll'),
+('Anorganic', 'ANORG', 10, 'Sampah anorganik seperti plastik, kertas, logam'),
+('B3 (Bahan Berbahaya Beracun)', 'B3', 20, 'Sampah berbahaya seperti baterai, lampu, elektronik');
+
+-- Insert default catalog items
+INSERT INTO `catalog_items` (`item_name`, `item_type`, `points_required`, `item_value`, `description`, `is_active`) VALUES
+('Cash Reward', 'cash', 500, 25000, 'Transfer uang tunai ke rekening Anda', 1),
+('Grocery Package', 'grocery', 750, 50000, 'Paket sembako untuk keluarga', 1),
+('Shopping Voucher', 'voucher', 300, 15000, 'Voucher belanja untuk toko retail', 1),
+('Plant a Tree', 'tree_planting', 200, 0, 'Kontribusi penanaman pohon untuk lingkungan', 1);
+
+-- Insert disposal sites (TPA)
+INSERT INTO `disposal_sites` (`site_name`, `address_text`, `city`, `province`, `postal_code`, `latitude`, `longitude`, `operating_hours`, `accepted_trash_categories`, `is_active`) VALUES
+('TPST Bantargebang', 'Jl. Pangkalan 5, Sumur Batu, Bantargebang', 'Bekasi', 'Jawa Barat', '17151', -6.338056, 106.992500, '24 Jam (Penerimaan Terjadwal)', 'ORG,ANORG,B3', 1),
+('Bank Sampah Induk Gesit Menteng', 'Jl. Menteng Pulo No.16, RT.3/RW.12, Menteng Atas, Setiabudi', 'Jakarta Selatan', 'DKI Jakarta', '12960', -6.216530, 106.838790, 'Senin-Jumat 08:00-16:00', 'ANORG', 1),
+('Bank Sampah Hijau Selaras', 'Jl. H. Jian II No.22, RT.1/RW.7, Cipete Utara, Kebayoran Baru', 'Jakarta Selatan', 'DKI Jakarta', '12150', -6.255810, 106.800570, 'Sabtu 09:00-12:00', 'ANORG,ORG', 1),
+('TPS 3R Semeru', 'Jl. Semeru Raya No.1, RT.1/RW.10, Grogol, Grogol Petamburan', 'Jakarta Barat', 'DKI Jakarta', '11450', -6.168990, 106.790770, 'Senin-Sabtu 07:00-15:00', 'ORG,ANORG', 1),
+('Bank Sampah Maju Bersama Rawasari', 'Jl. Rawasari Sel. No.20, RT.10/RW.2, Rawasari, Cempaka Putih', 'Jakarta Pusat', 'DKI Jakarta', '10570', -6.184040, 106.868410, 'Sesuai Jadwal Komunitas', 'ANORG', 1),
+('Fasilitas Pengolahan Sampah Sunter (ITF Sunter - Proyek)', 'Jl. Agung Karya VIII Blok D Kav. No. 1, Sunter Agung, Tanjung Priok', 'Jakarta Utara', 'DKI Jakarta', '14350', -6.133790, 106.876500, 'Dalam Pembangunan/Perencanaan', 'ORG,ANORG', 1),
+('Bank Sampah Anyelir Berseri', 'Jl. Anyelir Gg. III No. 25 RT. 005 RW. 003, Sukapura, Cilincing', 'Jakarta Utara', 'DKI Jakarta', '14140', -6.130000, 106.920000, 'Sesuai Jadwal Komunitas', 'ANORG', 1),
+('Bank Sampah Kenanga', 'Jl. Tipar Cakung Rt.001 Rw.05 No. 55, Sukapura, Cilincing', 'Jakarta Utara', 'DKI Jakarta', '14140', -6.131500, 106.921500, 'Sesuai Jadwal Komunitas', 'ANORG', 1),
+('TPS 3R Rawajati', 'Jl. Rawajati Timur II, RT.3/RW.2, Rawajati, Pancoran', 'Jakarta Selatan', 'DKI Jakarta', '12750', -6.247500, 106.848200, 'Senin-Sabtu Operasional', 'ORG,ANORG', 1),
+('Bank Sampah KSM Sejahtera Pondok Bambu', 'Jl. Pahlawan Revolusi Gg. H. SABA No.68, RT.1/RW.4, Pd. Bambu, Duren Sawit', 'Jakarta Timur', 'DKI Jakarta', '13430', -6.237800, 106.905100, 'Sesuai Jadwal Komunitas', 'ANORG', 1),
+('Bank Sampah Berkah Cipinang Muara', 'Jl. Cipinang Muara Raya No.20, RT.14/RW.3, Cipinang Muara, Jatinegara', 'Jakarta Timur', 'DKI Jakarta', '13420', -6.222000, 106.888000, 'Sesuai Jadwal Komunitas', 'ANORG', 1),
+('Bank Sampah Kencana Lestari', 'Jl. Kencana Lestari Blok CE 1 No. 10, Cilandak Barat', 'Jakarta Selatan', 'DKI Jakarta', '12430', -6.289130, 106.790470, 'Sesuai Jadwal Komunitas', 'ANORG', 1),
+('Pusat Daur Ulang (PDU) Pesanggrahan', 'Jl. Masjid Al-Mubarok Raya No.30, RT.5/RW.1, Pesanggrahan', 'Jakarta Selatan', 'DKI Jakarta', '12320', -6.266800, 106.750500, 'Senin-Jumat 08:00-16:00', 'ANORG', 1),
+('Bank Sampah RW 03 Pegadungan', 'Jl. Pegadungan Raya No.01, RT.1/RW.3, Pegadungan, Kalideres', 'Jakarta Barat', 'DKI Jakarta', '11830', -6.139500, 106.708000, 'Sesuai Jadwal Komunitas', 'ANORG', 1),
+('Bank Sampah Melati Bersih Cengkareng', 'Jl. Utama Raya No.48, RT.1/RW.1, Cengkareng Bar., Kecamatan Cengkareng', 'Jakarta Barat', 'DKI Jakarta', '11730', -6.150000, 106.735000, 'Sesuai Jadwal Komunitas', 'ANORG', 1);
+
+-- =================================================================================
+-- VIEWS & INDEXES
+-- =================================================================================
+
+-- View: user_points_summary
+CREATE VIEW user_points_summary AS
+SELECT 
+    u.id as user_id,
+    u.first_name,
+    u.last_name,
+    u.email,
+    COALESCE(SUM(p.points_earned), 0) as total_points_earned,
+    COALESCE(SUM(pr.points_redeemed), 0) as total_points_redeemed,
+    (COALESCE(SUM(p.points_earned), 0) - COALESCE(SUM(pr.points_redeemed), 0)) as current_points
+FROM users u
+LEFT JOIN points p ON u.id = p.user_id
+LEFT JOIN point_redemptions pr ON u.id = pr.user_id AND pr.status = 'completed'
+GROUP BY u.id, u.first_name, u.last_name, u.email;
+
+-- View: pickup_details
+CREATE VIEW pickup_details AS
+SELECT 
+    tpr.pickup_id,
+    tpr.user_id,
+    CONCAT(u.first_name, ' ', u.last_name) as user_name,
+    u.email,
+    u.phone_number,
+    tpr.pickup_address,
+    tpr.pickup_date,
+    tpr.pickup_time,
+    tpr.status,
+    tpr.total_weight_kg,
+    tpr.total_points_earned,
+    tpr.requested_at,
+    GROUP_CONCAT(
+        CONCAT(tc.category_name, ': ', ti.weight_kg, 'kg (', ti.points_earned, ' pts)')
+        SEPARATOR ', '
+    ) as items_detail
+FROM trash_pickup_requests tpr
+JOIN users u ON tpr.user_id = u.id
+LEFT JOIN trash_items ti ON tpr.pickup_id = ti.pickup_id
+LEFT JOIN trash_categories tc ON ti.category_id = tc.category_id
+GROUP BY tpr.pickup_id, tpr.user_id, u.first_name, u.last_name, u.email, u.phone_number,
+         tpr.pickup_address, tpr.pickup_date, tpr.pickup_time, tpr.status, 
+         tpr.total_weight_kg, tpr.total_points_earned, tpr.requested_at;
+
+-- Create indexes for better performance
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_sessions_token ON sessions(token);
+CREATE INDEX idx_pickup_user_date ON trash_pickup_requests(user_id, pickup_date);
+CREATE INDEX idx_pickup_status ON trash_pickup_requests(status);
+CREATE INDEX idx_points_user ON points(user_id);
+CREATE INDEX idx_redemptions_user ON point_redemptions(user_id);
+
+-- =================================================================================
+-- FINAL COMMIT
+-- =================================================================================
+COMMIT;

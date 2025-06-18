@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { PulseLoader } from "react-spinners";
-import SignUpDriver from "@/components/SignUpDriver"; // Menggunakan komponen baru SignUpDriver.jsx
+import SignUpDriver from "@/components/SignUpDriver";
 
 const SignupDriverPage = () => {
   const [loading, setLoading] = useState(true);

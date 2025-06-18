@@ -12,8 +12,7 @@ const RedeemBanner = () => {
         Get Your Reward
       </h1>
       <p className="text-white text-left transition-colors font-poppins text-[16px] md:text-[18px] mt-4">
-        Lorem ipsum dolor sit amet consectetur. Velit at faucibus eleifend
-        netus. Sagittis aliquam in nullam sit dolor arcu.
+        Tukarkan poin hasil daur ulangmu dan dapatkan hadiah menarik sebagai bentuk apresiasi atas kontribusimu!
       </p>
     </section>
   );

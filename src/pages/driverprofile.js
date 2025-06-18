@@ -20,14 +20,12 @@ const DriverProfilePage = () => {
     
     try {
         const userData = JSON.parse(userDataString);
-        // Pastikan hanya driver yang bisa mengakses halaman ini
         if (userData.role !== 'driver') {
-            router.replace("/userprofile"); // Redirect non-driver ke profil user
+            router.replace("/userprofile");
         } else {
             setLoading(false);
         }
     } catch(e) {
-        // Jika data user korup, paksa logout
         localStorage.clear();
         router.replace("/login");
     }

@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { authAPI } from "@/services/api"; // Pastikan path ini benar
+import { authAPI } from "@/services/api";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
     first_name: "",
-    last_name: "", // Tambahkan jika diperlukan oleh backend, atau gabungkan dengan first_name
+    last_name: "",
     phone_number: "",
     email: "",
     password: "",
@@ -39,11 +39,9 @@ const SignUp = () => {
       return;
     }
 
-    // Sesuaikan payload dengan yang diharapkan backend (misal, jika hanya butuh 'name' bukan 'first_name' & 'last_name')
-    // Untuk saat ini, saya asumsikan backend Anda menerima first_name, last_name, phone_number, email, password
     const userData = {
         first_name,
-        last_name: last_name || '', // Jika last_name opsional atau tidak ada field terpisah
+        last_name: last_name || '',
         phone_number,
         email,
         password,
@@ -51,16 +49,8 @@ const SignUp = () => {
 
     try {
       const response = await authAPI.register(userData);
-      // Asumsi backend mengembalikan token dan data user setelah registrasi berhasil
-      // Jika backend hanya mengembalikan pesan sukses, arahkan ke login
-      // Jika backend juga login otomatis:
-      // localStorage.setItem("authToken", response.data.token);
-      // localStorage.setItem("userData", JSON.stringify(response.data.user));
-      // window.dispatchEvent(new CustomEvent("authChange"));
-      // router.push("/");
 
-      // Untuk saat ini, kita arahkan ke halaman login setelah registrasi sukses
-      alert("Registrasi berhasil! Silakan login."); // Ganti dengan notifikasi yang lebih baik jika ada
+      alert("Registrasi berhasil! Silakan login.");
       router.push("/login");
 
     } catch (err) {

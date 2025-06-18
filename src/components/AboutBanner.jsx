@@ -9,9 +9,9 @@ const aboutBanner = () => {
       className={`${styles.flexStart} flex-col text-left md:px-28 xl:px-18 px-4 md:h-[950px] h-[820px] space-y-3 mx-auto`}
     >
       <h1 className="text-white transition-colors font-poppins font-bold text-[28px] md:text-[38px] lg:text-[56px]">
-        Keunggulan Layanan kami
+        The Strengths of Our
         <br />
-        dalam Pengelolaan Limbah
+        Waste Management Services
       </h1>
       <p className="text-white text-left transition-colors font-poppins text-[16px] md:text-[18px] mt-4">
         Kami menghadirkan solusi pengelolaan limbah yang profesional, <br /> 

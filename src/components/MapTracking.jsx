@@ -16,22 +16,17 @@ const tpaIcon = new L.Icon({
 const MapTracking = ({ details }) => {
     const [driverPosition, setDriverPosition] = useState(null);
 
-    // useEffect HANYA untuk mengelola event listener, BUKAN koneksi.
     useEffect(() => {
-        // Pastikan socket sudah terhubung oleh Context sebelum mendaftarkan listener.
         if (!socket.connected) {
-            socket.connect(); // Sebagai fallback jika context belum sempat menghubungkan.
+            socket.connect();
             console.log('[MapTracking] Force connect.');
         }
 
-        // Set posisi awal driver dari data prop
         if (details?.driver_latitude && details?.driver_longitude) {
             setDriverPosition([details.driver_latitude, details.driver_longitude]);
         }
 
-        // Listener khusus untuk halaman ini
         const handleLocationUpdate = (updatedDriver) => {
-            // Pastikan update lokasi ini untuk driver yang sedang dilacak
             if (updatedDriver.driver_id === details.assigned_driver_id) {
                 setDriverPosition([updatedDriver.current_latitude, updatedDriver.current_longitude]);
             }
@@ -40,14 +35,12 @@ const MapTracking = ({ details }) => {
         socket.on('driver-location-broadcast', handleLocationUpdate);
         console.log('[MapTracking] Listener "driver-location-broadcast" is ON.');
 
-        // Fungsi cleanup HANYA menghapus listener, TIDAK memutus koneksi.
         return () => {
             socket.off('driver-location-broadcast', handleLocationUpdate);
             console.log('[MapTracking] Listener "driver-location-broadcast" is OFF.');
         };
-    }, [details]); // Dependensi pada `details` memastikan listener di-reset jika detail pickup berubah.
+    }, [details]);
 
-    // Guard clause untuk data customer (sudah bagus, kita pertahankan)
     if (!details || typeof details.customer_latitude !== 'number' || typeof details.customer_longitude !== 'number') {
         return <div className='h-96 flex justify-center items-center text-gray-500'>Data lokasi customer tidak valid untuk ditampilkan.</div>;
     }

@@ -10,9 +10,9 @@ const ActivePickupBanner = () => {
   if (!activePickup) return null;
 
   const isSearching = activePickup.status === 'searching';
+  const isTracking = ['driver_found', 'driver_en_route', 'arrived_at_location', 'picked_up'].includes(activePickup.status);
   
-  // --- Ambil pesan status dinamis dari context ---
-  const statusMessage = activePickup.status_message;
+  const statusMessage = activePickup.status_message || (isSearching ? "Mencari Driver Terdekat..." : "Status tidak diketahui");
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[99] p-3 animate-slide-up">
@@ -24,18 +24,17 @@ const ActivePickupBanner = () => {
             <FaTruck className="text-xl sm:text-2xl text-green-400 animate-pulse flex-shrink-0" />
           )}
           <div className="min-w-0">
-            {/* Tampilkan status dinamis jika ada, jika tidak, tampilkan pesan default */}
             <p className="font-bold text-sm truncate">
-              {statusMessage || (isSearching ? "Mencari Driver Terdekat..." : "Driver Ditemukan!")}
+              {statusMessage}
             </p>
-            {!isSearching && (
+            {isTracking && (
               <p className="text-xs opacity-80 truncate">
-                Driver: {activePickup.driver?.driver_name || 'Dalam Perjalanan'}
+                Driver: {activePickup.driver?.driver_name || 'Memuat...'}
               </p>
             )}
           </div>
         </div>
-        {!isSearching && activePickup.pickupId && (
+        {isTracking && activePickup.pickupId && (
           <Link href={`/track/${activePickup.pickupId}`} className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg text-sm flex items-center gap-2 flex-shrink-0">
             <FaMapMarkedAlt /> Lacak
           </Link>

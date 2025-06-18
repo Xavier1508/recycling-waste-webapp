@@ -1,22 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { PulseLoader } from "react-spinners";
 import ArrangePickup from "@/components/ArrangePickup";
-import Navbar from "@/components/Navbar"; // Tambahkan Navbar
-import styles from "@/style"; // Pastikan path ini benar
+import Navbar from "@/components/Navbar";
+import styles from "@/style";
 import { useRouter } from "next/router";
 
-const PickupPage = () => { // Ubah nama komponen menjadi PascalCase
+const PickupPage = () => {
   const [pageLoading, setPageLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    // Cek token untuk proteksi route sederhana
+
     const token = localStorage.getItem("authToken");
     if (!token) {
-      // Jika tidak ada token, tidak perlu redirect dari sini karena ArrangePickup akan menampilkan AuthPromptModal
-      // Biarkan ArrangePickup yang menghandle logika jika user tidak login
     }
-    // Simulasi loading halaman, bisa dihapus jika tidak perlu
     const timer = setTimeout(() => setPageLoading(false), 500);
     return () => clearTimeout(timer);
   }, [router]);
@@ -55,4 +52,4 @@ const PickupPage = () => { // Ubah nama komponen menjadi PascalCase
   );
 };
 
-export default PickupPage; // Gunakan nama komponen PascalCase
+export default PickupPage;

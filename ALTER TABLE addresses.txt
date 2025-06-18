@@ -1,3 +1,62 @@
+-- Perintah ini akan menambahkan kolom 'catalog_id' ke dalam tabel point_redemptions.
+-- Kali ini tanpa klausa 'AFTER' agar lebih aman dan pasti berhasil.
+ALTER TABLE `point_redemptions` 
+ADD COLUMN `catalog_id` INT(11) NULL DEFAULT NULL COMMENT 'ID item dari tabel katalog';
+
+-- Perintah ini akan menambahkan relasi (Foreign Key) antara tabel penukaran dan tabel katalog.
+-- Ini penting untuk menjaga data tetap konsisten.
+ALTER TABLE `point_redemptions` 
+ADD CONSTRAINT `fk_redemption_catalog` 
+FOREIGN KEY (`catalog_id`) REFERENCES `catalog_items` (`catalog_id`) ON DELETE SET NULL;
+
+DELIMITER $$
+
+-- Pertama, kita hapus prosedur lama untuk memastikan tidak ada konflik.
+DROP PROCEDURE IF EXISTS `CalculatePickupPoints`$$
+
+-- Kemudian, kita buat prosedur baru dengan logika yang sudah diperbaiki.
+CREATE DEFINER=`root`@`localhost` PROCEDURE `CalculatePickupPoints` (IN `pickup_id_param` INT)
+BEGIN
+    -- Siapkan variabel untuk menampung hasil perhitungan.
+    DECLARE total_points_calculated INT DEFAULT 0;
+    DECLARE total_weight_calculated DECIMAL(10, 2) DEFAULT 0.00;
+
+    -- Langkah 1: Hitung total poin dan total berat dari semua item untuk pickup_id ini.
+    -- Ini adalah LOGIKA INTI yang benar: (berat item * poin per kg dari kategori)
+    SELECT 
+        -- Hitung total poin: Penjumlahan dari (berat item * poin per kg dari kategorinya)
+        -- COALESCE digunakan untuk memastikan hasilnya 0 jika tidak ada item sama sekali.
+        COALESCE(SUM(ti.weight_kg * tc.points_per_kg), 0),
+        
+        -- Hitung total berat: Penjumlahan dari semua berat item
+        COALESCE(SUM(ti.weight_kg), 0)
+    INTO 
+        -- Simpan hasil perhitungan ke dalam variabel yang sudah kita siapkan.
+        total_points_calculated, 
+        total_weight_calculated
+    FROM 
+        trash_items ti
+    -- Gabungkan (JOIN) dengan tabel trash_categories untuk mendapatkan nilai points_per_kg
+    JOIN 
+        trash_categories tc ON ti.category_id = tc.category_id
+    WHERE 
+        ti.pickup_id = pickup_id_param;
+
+    -- Langkah 2: Update tabel trash_pickup_requests dengan nilai total yang baru dan akurat.
+    -- Ini adalah satu-satunya tugas prosedur ini.
+    UPDATE trash_pickup_requests
+    SET 
+        total_points_earned = total_points_calculated,
+        total_weight_kg = total_weight_calculated
+    WHERE 
+        pickup_id = pickup_id_param;
+
+END$$
+
+DELIMITER ;
+
+---- prosedur terbaru yang diatas itu----
+
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 
