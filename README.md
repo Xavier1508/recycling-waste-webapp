@@ -60,6 +60,7 @@ Ensure you have the following software installed:
 
     # Install dependencies
     npm install
+    npm install geocoder
     ```
 
     Next, create a `.env` file in the `/backend` directory by copying `.env.example` or creating it from scratch. Populate it with your local configuration:
